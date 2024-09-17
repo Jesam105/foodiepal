@@ -57,7 +57,7 @@ const adminReg = () => {
       password: passwordRef.current,
     };
     axios
-      .post("http://192.168.48.185:5000/restaurant", restaurantData)
+      .post("http://192.168.0.147:5000/restaurant", restaurantData)
       .then((res) => {
         console.log(res.data);
         if (res.data.status === "ok") {

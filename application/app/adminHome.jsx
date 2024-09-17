@@ -8,7 +8,7 @@ import {
   BackHandler,
   Alert,
 } from "react-native";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { StatusBar } from "expo-status-bar";
 import AddButton from "../components/AddButton";
@@ -19,10 +19,43 @@ import Button1 from "../components/Button1";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import axios from "axios";
 
 const adminHome = () => {
   const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  // Fetch user data after login
+  const fetchUserData = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.log("Token not found in AsyncStorage");
+        return;
+      }
+
+      console.log("Retrieved token:", token); // Debug log
+
+      const response = await axios.post("http://192.168.0.147:5000/userdata", {
+        token,
+      });
+
+      console.log("Server response:", response.data); // Log the server response
+
+      if (response.data.status === "Ok") {
+        setUserData(response.data.data);
+      } else {
+        console.log("Error message from server:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -62,7 +95,9 @@ const adminHome = () => {
       <StatusBar style="dark" />
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.text}>Dashboard</Text>
+          <Text style={styles.text}>
+            Welcome, {userData ? userData.restaurant : "Restaurant Owner"}
+          </Text>
           {/* Update the Logout button to show the modal */}
           <Pressable onPress={() => setModalVisible(true)}>
             <Text style={styles.logoutText}>Logout</Text>
@@ -144,7 +179,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
   },
   text: {
-    fontSize: hp(3),
+    fontSize: hp(2),
     fontWeight: theme.colors.bold,
     color: theme.colors.black,
     marginLeft: 20,
@@ -158,7 +193,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: hp(2.5),
-    color: '#ff5e5b',
+    color: "#ff5e5b",
     fontWeight: theme.fonts.bold,
   },
   modalOverlay: {
@@ -191,18 +226,17 @@ const styles = StyleSheet.create({
   buttonCancel: {
     backgroundColor: theme.colors.white,
     borderWidth: 0.4,
-    borderColor: '#ff5e5b',
+    borderColor: "#ff5e5b",
     color: theme.colors.black,
-    width: '45%',
-
+    width: "45%",
   },
   buttonConfirm: {
-    backgroundColor: '#ff5e5b',
-    width: '45%',
+    backgroundColor: "#ff5e5b",
+    width: "45%",
   },
   buttonText: {
     fontSize: hp(2),
     color: theme.colors.black,
-    alignSelf: 'center'
+    alignSelf: "center",
   },
 });

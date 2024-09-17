@@ -5,7 +5,6 @@ import {
   FlatList,
   Image,
   TextInput,
-  // ActivityIndicator, // Import the ActivityIndicator component
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
@@ -15,34 +14,38 @@ import axios from "axios";
 import { theme } from "../constants/theme";
 import BackButton from "../components/BackButton";
 import { useRouter } from "expo-router";
-import {
-  BallIndicator,
-  BarIndicator,
-  DotIndicator,
-  MaterialIndicator,
-  PacmanIndicator,
-  PulseIndicator,
-  SkypeIndicator,
-  UIActivityIndicator,
-  WaveIndicator,
-} from "react-native-indicators";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DotIndicator } from "react-native-indicators";
 
 const foodInventory = () => {
   const router = useRouter();
   const [foodItems, setFoodItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   const fetchFoodItems = async () => {
     try {
-      const response = await axios.get("http://192.168.48.185:5000/food-menu");
-      setFoodItems(response.data);
-      setFilteredItems(response.data); // Initialize filtered items with all food items
-      setLoading(false); // Set loading to false after data is fetched
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found");
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.get("http://192.168.0.147:5000/food-menu", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Since the response is directly an array, no need to access `data.data`
+      const items = response.data || []; // Ensure it's an array, even if it's empty
+      setFoodItems(items);
+      setFilteredItems(items);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching food items:", error);
-      setLoading(false); // Set loading to false even if there's an error
+      setLoading(false);
     }
   };
 

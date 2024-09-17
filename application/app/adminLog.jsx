@@ -70,7 +70,7 @@ const LoginScreen = () => {
       password: passwordRef.current,
     };
     axios
-      .post("http://192.168.48.185:5000/login-restaurant", loginData)
+      .post("http://192.168.0.147:5000/login-restaurant", loginData)
       .then(async (res) => {
         setLoading(false);
         if (res.data.status == "ok") {

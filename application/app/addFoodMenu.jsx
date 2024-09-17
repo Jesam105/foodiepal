@@ -87,7 +87,7 @@ const addFoodMenu = () => {
 
     try {
       const res = await axios.post(
-        "http://192.168.48.185:5000/food-menu",
+        "http://192.168.0.147:5000/food-menu",
         foodMenuData
       );
 

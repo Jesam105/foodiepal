@@ -7,6 +7,7 @@ const FoodMenuSchema = new mongoose.Schema(
     price: { type: String, required: true }, 
     image: { type: String, required: true }, 
     status: { type: String, required: true }, 
+    // restaurant: { type: mongoose.Schema.Types.ObjectId, ref: "RestaurantInfo", required: true }  // Reference to restaurant owner
   },
   {
     collection: "FoodMenu", 
