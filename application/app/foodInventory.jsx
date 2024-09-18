@@ -5,6 +5,8 @@ import {
   FlatList,
   Image,
   TextInput,
+  RefreshControl,
+  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
@@ -16,6 +18,10 @@ import BackButton from "../components/BackButton";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DotIndicator } from "react-native-indicators";
+import { Ionicons } from "@expo/vector-icons"; // Import Ionicons for the arrow icon
+import Icon from "../assets/icons";
+import EditButton from "../components/EditButton";
+import ApproveButton from "../components/ApproveButton";
 
 const foodInventory = () => {
   const router = useRouter();
@@ -23,6 +29,7 @@ const foodInventory = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchFoodItems = async () => {
     try {
@@ -38,8 +45,7 @@ const foodInventory = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Since the response is directly an array, no need to access `data.data`
-      const items = response.data || []; // Ensure it's an array, even if it's empty
+      const items = response.data || [];
       setFoodItems(items);
       setFilteredItems(items);
       setLoading(false);
@@ -50,7 +56,7 @@ const foodInventory = () => {
   };
 
   useEffect(() => {
-    fetchFoodItems(); // Fetch food items when the component mounts
+    fetchFoodItems();
   }, []);
 
   const handleSearch = (query) => {
@@ -61,6 +67,12 @@ const foodInventory = () => {
         item.description.toLowerCase().includes(query.toLowerCase())
     );
     setFilteredItems(filtered);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchFoodItems();
+    setRefreshing(false);
   };
 
   return (
@@ -77,28 +89,44 @@ const foodInventory = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
-        {loading ? ( // Show the loader while loading
+        {loading ? (
           <DotIndicator color={theme.colors.primary} />
         ) : filteredItems.length > 0 ? (
           <FlatList
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
             data={filteredItems}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <View style={styles.itemContainer}>
-                <Text style={styles.itemTitle}>{item.food}</Text>
-                <Text style={styles.itemDescription}>{item.description}</Text>
-                <Text style={styles.itemPrice}>{item.price}</Text>
-                <Text style={styles.itemStatus}>{item.status}</Text>
-                {item.image ? (
-                  <Image
-                    source={{ uri: item.image }} // Assuming the image URL is correct
-                    style={styles.itemImage}
-                  />
-                ) : (
-                  <Text>No image available</Text>
-                )}
+                <View style={styles.rowContainer}>
+                  {item.image ? (
+                    <Image
+                      source={{ uri: item.image }}
+                      style={styles.itemImage}
+                    />
+                  ) : (
+                    <Text>No image available</Text>
+                  )}
+                  <View style={styles.itemDetails}>
+                    <View style={styles.itemTitleContainer}>
+                      <Text style={styles.itemTitle}>{item.food}</Text>
+                      <Text style={styles.itemPrice}>N{item.price}</Text>
+                    </View>
+                    <Text style={styles.itemDescription}>
+                      {item.description}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.Button}>
+                  <EditButton title={"Edit"} />
+                  <ApproveButton title={"Approve"} />
+                </View>
               </View>
             )}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           />
         ) : (
           <Text>No food items available.</Text>
@@ -113,7 +141,7 @@ export default foodInventory;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 45,
+    gap: 15,
     paddingHorizontal: wp(5),
   },
   header: {
@@ -139,31 +167,50 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
     paddingBottom: 10,
+  },
+  rowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  itemImage: {
+    width: wp(20),
+    height: hp(10),
+    resizeMode: "cover",
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  itemDetails: {
+    flex: 1,
+  },
+  itemTitleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   itemTitle: {
     fontSize: hp(2.5),
     fontWeight: "bold",
+    color: "#000",
+  },
+  itemPrice: {
+    fontSize: hp(2.5),
+    fontWeight: "bold",
+    color: "#000",
   },
   itemDescription: {
     fontSize: hp(2),
     color: "#555",
+    marginTop: 5,
   },
-  itemPrice: {
-    fontSize: hp(2),
-    color: "#000",
+  arrowContainer: {
+    marginTop: 1,
+    alignItems: "flex-end",
   },
-  itemStatus: {
-    fontSize: hp(2),
-    color: theme.colors.green,
-  },
-  itemImage: {
-    width: wp(80),
-    height: hp(20),
-    resizeMode: "cover",
-    borderRadius: 5,
-    marginTop: 10,
-  },
+  Button: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 6,
+  }
 });

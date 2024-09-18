@@ -20,13 +20,15 @@ const Student = mongoose.model("StudentInfo");
 const Restaurant = mongoose.model("RestaurantInfo");
 const Food = mongoose.model("FoodMenu");
 
+
 app.get("/", (req, res) => {
   res.send({ status: "Started" });
 });
 
 // Register restaurant owner
 app.post("/restaurant", async (req, res) => {
-  const { restaurant, location, secretkey, email, password, confirmPassword } = req.body;
+  const { restaurant, location, secretkey, email, password, confirmPassword } =
+    req.body;
 
   // if (password !== confirmPassword) {
   //   return res.status(400).json({ status: "error", message: "Passwords do not match" });
@@ -83,7 +85,7 @@ app.post("/login-restaurant", async (req, res) => {
     { userId: oldEmail._id, email: oldEmail.email },
     process.env.JWT_SECRET,
     {
-      expiresIn: "1h",
+      expiresIn: "24h",
     }
   );
 
@@ -107,9 +109,13 @@ app.post("/userdata", async (req, res) => {
     }
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      return res.status(401).send({ status: "Error", message: "Token expired" });
+      return res
+        .status(401)
+        .send({ status: "Error", message: "Token expired" });
     } else if (error.name === "JsonWebTokenError") {
-      return res.status(400).send({ status: "Error", message: "Invalid token" });
+      return res
+        .status(400)
+        .send({ status: "Error", message: "Invalid token" });
     }
     res.status(500).send({ status: "Error", message: error.message });
   }
@@ -121,7 +127,12 @@ app.post("/food-menu", async (req, res) => {
 
   const oldFood = await Food.findOne({ food });
   if (oldFood) {
-    return res.status(409).json({ data: "Food Item already exists" });
+    return res
+      .status(409)
+      .json({
+        status: "error",
+        data: "Food Item already exists for this restaurant",
+      });
   }
 
   try {
@@ -130,7 +141,7 @@ app.post("/food-menu", async (req, res) => {
       description,
       price,
       image,
-      status,
+      status, // Include restaurant owner ID
     });
     res.status(201).json({ status: "ok", data: "Added Successfully" });
   } catch (error) {
@@ -146,6 +157,7 @@ app.get("/food-menu", async (req, res) => {
     res.status(500).json({ status: "error", message: error.message });
   }
 });
+
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);

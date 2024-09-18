@@ -13,6 +13,7 @@ const Input = (props) => {
         style={{flex: 1}}
         placeholderTextColor={theme.colors.textLight}
         ref={props.inputRef && props.inputRef}
+        multiline={true}
         {...props} />
     </View>
   )
@@ -32,5 +33,9 @@ const styles = StyleSheet.create({
         borderCurve: 'continuous',
         paddingHorizontal: 18,
         gap: 12
-    }
+    },
+    multiline: {
+      textAlignVertical: "top", // Ensures text starts from the top of the input
+      height: 150, // Adjust the height as needed
+    },
 })

@@ -29,6 +29,7 @@ import Description from './Description';
 import Currency from './Currency'
 import ChevronDoubleRight from './ChevronDoubleRight';
 import ViewFinder from './ViewFinder';
+import ArrowRight from './ArrowRight';
 
 const icons = {
     home: Home,
@@ -58,7 +59,8 @@ const icons = {
     description:Description,
     currency:Currency,
     chevronRight:ChevronDoubleRight,
-    viewFinder:ViewFinder
+    viewFinder:ViewFinder, 
+    arrowRight: ArrowRight
 }
 
 const Icon = ({name, ...props}) => {
