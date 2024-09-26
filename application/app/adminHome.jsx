@@ -37,7 +37,7 @@ const adminHome = () => {
 
       console.log("Retrieved token:", token); // Debug log
 
-      const response = await axios.post("http://192.168.0.147:5000/userdata", {
+      const response = await axios.post("http://192.168.0.147:5000/restaurant-data", {
         token,
       });
 
@@ -84,7 +84,7 @@ const adminHome = () => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("token"); // Remove the token to log out
-      router.push("adminLog"); // Redirect to the login screen
+      router.push("getStarted"); // Redirect to the login screen
     } catch (error) {
       console.log("Error logging out:", error); // Handle any errors
     }

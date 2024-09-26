@@ -29,15 +29,18 @@ const adminReg = () => {
   const [loading, setLoading] = useState(false);
   const restaurantRef = useRef("");
   const locationRef = useRef("");
+  const usertypeRef = useRef("");
   const secretkeyRef = useRef("");
   const emailRef = useRef("");
   const passwordRef = useRef("");
+  const [usertype, setUserType] = useState("");
 
   const onSubmit = async () => {
     setLoading(true);
     if (
       !locationRef.current ||
       !secretkeyRef.current ||
+      !usertypeRef ||
       !emailRef.current ||
       !restaurantRef.current ||
       !passwordRef.current
@@ -49,13 +52,16 @@ const adminReg = () => {
       });
       return;
     }
+
     const restaurantData = {
-      restaurant: restaurantRef.current, // Accessing the current value
+      restaurant: restaurantRef.current,
       location: locationRef.current,
       secretkey: secretkeyRef.current,
       email: emailRef.current,
       password: passwordRef.current,
+      usertype: usertypeRef.current,
     };
+
     axios
       .post("http://192.168.0.147:5000/restaurant", restaurantData)
       .then((res) => {
@@ -71,19 +77,55 @@ const adminReg = () => {
         } else {
           Toast.show({
             type: "error",
-            text1: JSON.stringify(res.data),
+            text1: res.data.message || "An error occurred",
           });
         }
       })
       .catch((e) => {
         setLoading(false);
-        Toast.show({
-          type: "error",
-          text1: "An error occurred",
-        });
+
+        // Check for specific backend errors
+        if (e.response) {
+          const status = e.response.status;
+          const data = e.response.data;
+
+          if (status === 409) {
+            // Conflict error: Restaurant already exists
+            Toast.show({
+              type: "error",
+              text1: "Restaurant already exists",
+            });
+          } else if (status === 400 && data.message === "Invalid Secret Key") {
+            // Bad request: Incorrect secret key
+            Toast.show({
+              type: "error",
+              text1: "Invalid Secret Key",
+            });
+          } else {
+            // Other backend errors
+            Toast.show({
+              type: "error",
+              text1: data.message || "An error occurred",
+            });
+          }
+        } else if (e.request) {
+          // Network error (no response received)
+          Toast.show({
+            type: "error",
+            text1: "Check your internet connection and try again",
+          });
+        } else {
+          // Other types of errors
+          Toast.show({
+            type: "error",
+            text1: e.message || "An unknown error occurred",
+          });
+        }
+
         console.log(e);
       });
   };
+
   return (
     <ScreenWrapper bg="white">
       <StatusBar style="dark" />
@@ -129,9 +171,39 @@ const adminReg = () => {
               onChangeText={(value) => (passwordRef.current = value)}
               secureTextEntry
             />
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={usertype}
+                onValueChange={(itemValue) => {
+                  setUserType(itemValue);
+                  usertypeRef.current = itemValue;
+                }}
+                style={styles.picker}
+              >
+                <Picker.Item label="-Verify User-" value="" />
+                <Picker.Item label="Admin" value="admin" />
+                <Picker.Item label="Student" value="student" />
+              </Picker>
+            </View>
             <Button title={"Submit"} loading={loading} onPress={onSubmit} />
           </View>
-          <Footer />
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Already have an account?</Text>
+            <Pressable onPress={() => router.push("adminLog")}>
+              <Text
+                style={[
+                  styles.footerText,
+                  {
+                    color: theme.colors.primary,
+                    fontWeight: theme.fonts.extraBold,
+                  },
+                ]}
+              >
+                Sign In
+              </Text>
+            </Pressable>
+          </View>
+          {/* <Footer /> */}
         </ScrollView>
         <Toast swipeable={true} />
       </View>
@@ -154,5 +226,30 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 25,
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 10,
+  },
+  footerText: {
+    textAlign: "center",
+    color: theme.colors.text,
+    fontSize: hp(1.6),
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: theme.colors.text,
+    borderRadius: 5,
+    borderWidth: 0.4,
+    overflow: "hidden",
+  },
+  picker: {
+    width: "100%",
+    height: hp(7),
+    backgroundColor: theme.colors.white,
+    color: theme.colors.text,
   },
 });

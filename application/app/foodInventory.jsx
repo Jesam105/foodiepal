@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,20 +9,17 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import ScreenWrapper from "../components/ScreenWrapper";
-import { StatusBar } from "expo-status-bar";
-import { hp, wp } from "../helpers/common";
 import axios from "axios";
-import { theme } from "../constants/theme";
-import BackButton from "../components/BackButton";
-import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DotIndicator } from "react-native-indicators";
-import { Ionicons } from "@expo/vector-icons"; // Import Ionicons for the arrow icon
-import Icon from "../assets/icons";
+import { StatusBar } from "expo-status-bar";
+import { wp, hp } from "../helpers/common";
+import ScreenWrapper from "../components/ScreenWrapper";
+import BackButton from "../components/BackButton";
 import EditButton from "../components/EditButton";
 import ApproveButton from "../components/ApproveButton";
+import { theme } from "../constants/theme";
+import { useRouter } from "expo-router";
 
 const foodInventory = () => {
   const router = useRouter();
@@ -30,14 +28,17 @@ const foodInventory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [expandedDescription, setExpandedDescription] = useState({});
 
   const fetchFoodItems = async () => {
+    setLoading(true); // Start loading state
+
     try {
       const token = await AsyncStorage.getItem("token");
 
       if (!token) {
         console.error("No token found");
-        setLoading(false);
+        setLoading(false); // Stop loading state
         return;
       }
 
@@ -48,10 +49,10 @@ const foodInventory = () => {
       const items = response.data || [];
       setFoodItems(items);
       setFilteredItems(items);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching food items:", error);
-      setLoading(false);
+    } finally {
+      setLoading(false); // Stop loading state regardless of success or error
     }
   };
 
@@ -73,6 +74,13 @@ const foodInventory = () => {
     setRefreshing(true);
     await fetchFoodItems();
     setRefreshing(false);
+  };
+
+  const toggleDescription = (id) => {
+    setExpandedDescription((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
   };
 
   return (
@@ -113,9 +121,22 @@ const foodInventory = () => {
                       <Text style={styles.itemTitle}>{item.food}</Text>
                       <Text style={styles.itemPrice}>N{item.price}</Text>
                     </View>
-                    <Text style={styles.itemDescription}>
+                    <Text
+                      style={styles.itemDescription}
+                      numberOfLines={
+                        expandedDescription[item._id] ? undefined : 2
+                      }
+                    >
                       {item.description}
                     </Text>
+                    <TouchableOpacity
+                      onPress={() => toggleDescription(item._id)}
+                      style={styles.viewButton}
+                    >
+                      <Text style={styles.viewButtonText}>
+                        {expandedDescription[item._id] ? "Hide" : "View"}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
                 <View style={styles.Button}>
@@ -129,7 +150,14 @@ const foodInventory = () => {
             }
           />
         ) : (
-          <Text>No food items available.</Text>
+          <View style={styles.noItemsContainer}>
+            <Text style={styles.noItemsText}>No food items available.</Text>
+            <Image
+              style={styles.welcomeImage}
+              resizeMode="contain"
+              source={require("../assets/images/search.png")}
+            />
+          </View>
         )}
       </View>
     </ScreenWrapper>
@@ -190,12 +218,12 @@ const styles = StyleSheet.create({
   },
   itemTitle: {
     fontSize: hp(2.5),
-    fontWeight: "bold",
+    fontWeight: theme.fonts.medium,
     color: "#000",
   },
   itemPrice: {
-    fontSize: hp(2.5),
-    fontWeight: "bold",
+    fontSize: hp(1.7),
+    fontWeight: theme.fonts.medium,
     color: "#000",
   },
   itemDescription: {
@@ -203,14 +231,32 @@ const styles = StyleSheet.create({
     color: "#555",
     marginTop: 5,
   },
-  arrowContainer: {
-    marginTop: 1,
-    alignItems: "flex-end",
+  viewButton: {
+    alignItems: "flex-start",
+    marginTop: 5,
+  },
+  viewButtonText: {
+    color: theme.colors.primary,
+    fontWeight: "bold",
   },
   Button: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     gap: 6,
-  }
+  },
+  noItemsContainer: {
+    alignItems: "center",
+    marginTop: 30,
+  },
+  noItemsText: {
+    fontSize: hp(2.5),
+    marginBottom: 20,
+    color: "#333",
+  },
+  welcomeImage: {
+    width: wp(100),
+    height: hp(70),
+    marginTop: 10,
+  },
 });

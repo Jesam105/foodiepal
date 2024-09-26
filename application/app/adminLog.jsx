@@ -24,7 +24,7 @@ import axios from "axios";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const LoginScreen = () => {
+const adminLog = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const emailRef = useRef("");
@@ -69,37 +69,38 @@ const LoginScreen = () => {
       email: emailRef.current,
       password: passwordRef.current,
     };
-    axios
-      .post("http://192.168.0.147:5000/login-restaurant", loginData)
-      .then(async (res) => {
-        setLoading(false);
-        if (res.data.status == "ok") {
-          // Store the token
-          await AsyncStorage.setItem("token", res.data.token);
-          Toast.show({
-            type: "success",
-            text1: "Logged In Successfully",
-          });
-          setTimeout(() => {
-            router.push("adminHome");
-          }, 1000);
-        } else {
-          Toast.show({
-            type: "error",
-            text1: "Invalid Credentials",
-          });
-        }
-      })
-      .catch((e) => {
-        setLoading(false);
-        Toast.show({
-          type: "error",
-          text1: "An error occurred",
-        });
-        console.log(e);
-      });
-  };
+    try {
+      const response = await axios.post(
+        "http://192.168.0.147:5000/login",
+        loginData
+      );
+      const { token, usertype } = response.data;
 
+      // Store token and usertype in AsyncStorage
+      await AsyncStorage.setItem("token", token);
+      await AsyncStorage.setItem("usertype", usertype);
+
+      Toast.show({ type: "success", text1: "Login successful!" });
+
+      // Navigate to correct home screen based on usertype
+      if (usertype === "student") {
+        setTimeout(() => {
+          router.push("studentHome");
+        }, 3000);
+      } else if (usertype === "admin") {
+        setTimeout(() => {
+          router.push("adminHome");
+        }, 3000);
+      }
+    } catch (error) {
+      setLoading(false);
+      Toast.show({
+        type: "error",
+        text1: "Invalid credentials or server error",
+      });
+      console.error(error);
+    }
+  };
   return (
     <ScreenWrapper bg="white">
       <StatusBar style="dark" />
@@ -178,7 +179,7 @@ const LoginScreen = () => {
   );
 };
 
-export default LoginScreen;
+export default adminLog;
 
 const styles = StyleSheet.create({
   container: {

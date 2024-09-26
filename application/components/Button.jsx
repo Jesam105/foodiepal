@@ -45,8 +45,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderCurve: 'continuous',
-        borderRadius: theme.radius.sm,
-        marginTop: 30
+        borderRadius: 5,
+        marginTop: 15
     },
     text: {
         fontSize: hp(2.5),
