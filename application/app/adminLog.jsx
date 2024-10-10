@@ -57,6 +57,7 @@ const adminLog = () => {
 
   const onSubmit = async () => {
     setLoading(true);
+    
     if (!emailRef.current || !passwordRef.current) {
       setLoading(false);
       Toast.show({
@@ -65,24 +66,31 @@ const adminLog = () => {
       });
       return;
     }
+    
     const loginData = {
       email: emailRef.current,
       password: passwordRef.current,
     };
+  
     try {
       const response = await axios.post(
         "http://192.168.0.147:5000/login",
         loginData
       );
-      const { token, usertype } = response.data;
-
-      // Store token and usertype in AsyncStorage
+      
+      const { token, usertype, id } = response.data;  // Extract id from response
+  
+      // Store token, usertype, and id (only if user is admin) in AsyncStorage
       await AsyncStorage.setItem("token", token);
       await AsyncStorage.setItem("usertype", usertype);
-
-      Toast.show({ type: "success", text1: "Login successful!" });
-
-      // Navigate to correct home screen based on usertype
+  
+      if (usertype === "admin" && id) {
+        await AsyncStorage.setItem("id", id);  // Store id for admin users
+      }
+  
+      Toast.show({ type: "success", text1: "Login Successful" });
+  
+      // Navigate to the correct home screen based on usertype
       if (usertype === "student") {
         setTimeout(() => {
           router.push("studentHome");
@@ -101,9 +109,10 @@ const adminLog = () => {
       console.error(error);
     }
   };
+  
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <View style={styles.container}>
         <BackButton
           router={router}
@@ -118,61 +127,65 @@ const adminLog = () => {
             ]);
           }}
         />
-
-        <View>
-          <Text style={styles.welcomeText}>Hey,</Text>
-          <Text style={styles.welcomeText}>Welcome Back</Text>
-        </View>
-
-        <View style={styles.form}>
-          <Text style={{ fontSize: hp(1.5), color: theme.colors.text }}>
-            Please login to continue
-          </Text>
-          <Input
-            icon={<Icon name="mail" size={26} strokeWidth={1.6} />}
-            placeholder="Enter Email Address"
-            onChangeText={(value) => (emailRef.current = value)}
-          />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+        >
           <View>
-            <Input
-              icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
-              placeholder="Enter your password"
-              secureTextEntry={!passwordVisible}
-              onChangeText={(value) => (passwordRef.current = value)}
-            />
-            <Pressable
-              style={styles.eyeIcon}
-              onPress={() => setPasswordVisible(!passwordVisible)}
-            >
-              <Icon
-                name={passwordVisible ? "eyeOpen" : "eyeClose"} // Use your custom icon names here
-                size={26}
-                strokeWidth={1.6}
-              />
-            </Pressable>
+            <Text style={styles.welcomeText}>Hey,</Text>
+            <Text style={styles.welcomeText}>Welcome Back</Text>
           </View>
 
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-
-          <Button title={"Login"} loading={loading} onPress={onSubmit} />
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account?</Text>
-          <Pressable onPress={() => router.push("adminReg")}>
-            <Text
-              style={[
-                styles.footerText,
-                {
-                  color: theme.colors.primary,
-                  fontWeight: theme.fonts.extraBold,
-                },
-              ]}
-            >
-              Sign Up
+          <View style={styles.form}>
+            <Text style={{ fontSize: hp(1.5), color: theme.colors.primary }}>
+              Please login to continue
             </Text>
-          </Pressable>
-        </View>
+            <Input
+              icon={<Icon name="mail" size={26} strokeWidth={1.6} />}
+              placeholder="Enter Email Address"
+              onChangeText={(value) => (emailRef.current = value)}
+            />
+            <View>
+              <Input
+                icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
+                placeholder="Enter your password"
+                secureTextEntry={!passwordVisible}
+                onChangeText={(value) => (passwordRef.current = value)}
+              />
+              <Pressable
+                style={styles.eyeIcon}
+                onPress={() => setPasswordVisible(!passwordVisible)}
+              >
+                <Icon
+                  name={passwordVisible ? "eyeOpen" : "eyeClose"} // Use your custom icon names here
+                  size={26}
+                  strokeWidth={1.6}
+                />
+              </Pressable>
+            </View>
+
+            <Text style={styles.forgotPassword}>Forgot Password?</Text>
+
+            <Button title={"Login"} loading={loading} onPress={onSubmit} />
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account?</Text>
+            <Pressable onPress={() => router.push("adminReg")}>
+              <Text
+                style={[
+                  styles.footerText,
+                  {
+                    color: theme.colors.primary,
+                    fontWeight: theme.fonts.extraBold,
+                  },
+                ]}
+              >
+                Sign Up
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
         <Toast swipeable={true} />
       </View>
     </ScreenWrapper>
@@ -190,7 +203,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: hp(4),
     fontWeight: theme.colors.bold,
-    color: theme.colors.text,
+    color: theme.colors.white,
   },
   form: {
     gap: 25,

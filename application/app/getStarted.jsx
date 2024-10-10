@@ -15,15 +15,15 @@ import Footer from "../components/Footer";
 const getStarted = () => {
   const router = useRouter();
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <View style={styles.container}>
         <View>
           <Text style={styles.welcomeText}>Let's</Text>
           <Text style={styles.welcomeText}>Get Started</Text>
         </View>
         <View style={styles.button}>
-          <Text style={{ fontSize: hp(1.5), color: theme.colors.text }}>
+          <Text style={{ fontSize: hp(1.5), color: theme.colors.primary }}>
             Please select the button that suits you
           </Text>
           <Button title={"Admin"} onPress={() => router.push("adminReg")} />
@@ -50,6 +50,6 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: hp(4),
     fontWeight: theme.colors.bold,
-    color: theme.colors.text,
+    color: theme.colors.white,
   },
 });

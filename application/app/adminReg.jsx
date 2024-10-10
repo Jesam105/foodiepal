@@ -127,8 +127,8 @@ const adminReg = () => {
   };
 
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <View style={styles.container}>
         <BackButton router={router} onPress={() => router.back()} />
         <ScrollView
@@ -141,7 +141,7 @@ const adminReg = () => {
             </Text>
           </View>
           <View style={styles.form}>
-            <Text style={{ fontSize: hp(1.5), color: theme.colors.text }}>
+            <Text style={{ fontSize: hp(1.5), color: theme.colors.primary, paddingTop: 20 }}>
               Please fill in the details to register yout business
             </Text>
             <Input
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: hp(4),
     fontWeight: theme.colors.bold,
-    color: theme.colors.text,
+    color: theme.colors.white,
   },
   form: {
     gap: 25,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   picker: {
     width: "100%",
     height: hp(7),
-    backgroundColor: theme.colors.white,
+    backgroundColor: theme.colors.black,
     color: theme.colors.text,
   },
 });

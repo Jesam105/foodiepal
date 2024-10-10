@@ -6,6 +6,7 @@ import {
   PanResponder,
   Pressable,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import React, { useRef, useEffect, useState } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
@@ -19,16 +20,33 @@ import Icon from "../assets/icons";
 const Index = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true); // Add a loading state
+  const swipeAnim = useRef(new Animated.Value(0)).current; // Animation value for swipe
+
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Respond to swipes only
         return Math.abs(gestureState.dx) > Math.abs(gestureState.dy);
       },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dx > 0) {
+          swipeAnim.setValue(gestureState.dx); // Set animation value to swipe distance
+        }
+      },
       onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dx > 50) {
-          // Right swipe
-          router.push("getStarted");
+        if (gestureState.dx > 150) {
+          // When the swipe is far enough, reset animation before navigating
+          Animated.spring(swipeAnim, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start(() => {
+            router.push("getStarted");
+          });
+        } else {
+          // Reset the animation if not swiped far enough
+          Animated.spring(swipeAnim, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
         }
       },
     })
@@ -41,14 +59,13 @@ const Index = () => {
         const userType = await AsyncStorage.getItem("usertype");
 
         if (token && userType) {
-          // Navigate based on userType
           if (userType === "student") {
             router.push("studentHome");
           } else if (userType === "admin") {
             router.push("adminHome");
           }
         } else {
-          setLoading(false); // Show the initial screen
+          setLoading(false);
         }
       } catch (error) {
         console.error("Failed to check auth status:", error);
@@ -70,16 +87,16 @@ const Index = () => {
   }
 
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <View style={styles.container}>
         <Image
           style={styles.welcomeImage}
           resizeMode="contain"
-          source={require("../assets/images/onboarding3.png")}
+          source={require("../assets/images/food.png")}
         />
 
-        <View style={{ gap: 10 }}>
+        <View style={styles.Text}>
           <Text style={styles.title}>FoodiePal</Text>
           <Text style={styles.tagline}>
             Just a Tap Away: Streamlining Your University Dining Experience
@@ -88,12 +105,29 @@ const Index = () => {
 
         <View style={styles.footer}>
           <View {...panResponder.panHandlers} style={styles.swipeArea}>
-            <Icon
-              name="chevronRight"
-              size={26}
-              strokeWidth={1.6}
-              color={theme.colors.white}
-            />
+            <Animated.View
+              style={[
+                styles.iconContainer,
+                {
+                  transform: [
+                    {
+                      translateX: swipeAnim.interpolate({
+                        inputRange: [0, 150], // Max swipe distance
+                        outputRange: [0, wp(76)], // Move icon across the width
+                        extrapolate: "clamp",
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <Icon
+                name="chevronRight"
+                size={26}
+                strokeWidth={1.6}
+                color={theme.colors.white}
+              />
+            </Animated.View>
             <Text style={styles.swipeText}>Swipe to Get Started</Text>
           </View>
         </View>
@@ -111,11 +145,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     backgroundColor: "white",
     paddingHorizontal: wp(4),
+    paddingVertical: wp(15),
   },
   welcomeImage: {
     height: hp(30),
     width: wp(100),
     alignSelf: "center",
+    marginTop: 50,
   },
   title: {
     color: theme.colors.text,
@@ -138,14 +174,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.text,
     borderRadius: 10,
     marginHorizontal: wp(3),
+    overflow: "hidden",
   },
   swipeText: {
     color: "white",
     fontSize: hp(2),
     fontWeight: theme.fonts.bold,
+  },
+  iconContainer: {
+    position: "absolute",
+    left: wp(0),
+    backgroundColor: theme.colors.primary,
+    height: hp(7),
+    justifyContent: "center",
+    alignItems: "center",
+    width: wp(10),
+    borderRadius: 10,
   },
   loading: {
     flex: 1,

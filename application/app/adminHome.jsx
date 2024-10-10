@@ -30,18 +30,23 @@ const adminHome = () => {
   const fetchUserData = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        console.log("Token not found in AsyncStorage");
+      const id = await AsyncStorage.getItem("id"); // Retrieve id
+
+      if (!token || !id) {
+        console.log("Token or Restaurant ID not found in AsyncStorage");
         return;
       }
 
-      console.log("Retrieved token:", token); // Debug log
+      // Log the token and id
+      console.log("Retrieved Token:", token);
+      console.log("Retrieved Restaurant ID:", id);
 
-      const response = await axios.post("http://192.168.0.147:5000/restaurant-data", {
-        token,
-      });
-
-      console.log("Server response:", response.data); // Log the server response
+      const response = await axios.post(
+        "http://192.168.0.147:5000/restaurant-data",
+        {
+          token,
+        }
+      );
 
       if (response.data.status === "Ok") {
         setUserData(response.data.data);
@@ -49,7 +54,13 @@ const adminHome = () => {
         console.log("Error message from server:", response.data.message);
       }
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      // Check if the error is a 401 (Unauthorized) indicating token expiration
+      if (error.response && error.response.status === 401) {
+        console.log("Token expired or invalid, logging out...");
+        await handleLogout(); // Trigger logout if token is expired
+      } else {
+        console.error("Error fetching user data:", error);
+      }
     }
   };
 
@@ -91,8 +102,8 @@ const adminHome = () => {
   };
 
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.text}>
@@ -181,7 +192,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: hp(2),
     fontWeight: theme.colors.bold,
-    color: theme.colors.black,
+    color: theme.colors.white,
     marginLeft: 20,
   },
   header: {

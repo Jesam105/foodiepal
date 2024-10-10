@@ -2,13 +2,14 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import ScreenWrapper from './ScreenWrapper'
 import { StatusBar } from 'expo-status-bar'
+import { theme } from '../constants/theme'
 
 const Footer = () => {
   return (
-    <ScreenWrapper bg="white">
-        <StatusBar style='dark' />
+    <ScreenWrapper bg="black">
+        <StatusBar style='light' />
         <View style={styles.container}>
-            <Text>Powered by Jesam Obona 🧑‍💻⚙️</Text>
+            <Text style={styles.text}>Powered by Jesam Obona 🧑‍💻⚙️</Text>
         </View>
     </ScreenWrapper>
   )
@@ -23,4 +24,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',   // Centers content horizontally
         paddingBottom: 20,      // Adds some space at the bottom
       },
+      text: {
+        color: theme.colors.white
+      }
 })

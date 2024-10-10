@@ -38,15 +38,22 @@ const foodInventory = () => {
 
       if (!token) {
         console.error("No token found");
-        setLoading(false); // Stop loading state
+        setLoading(false);
         return;
       }
 
-      const response = await axios.get("http://192.168.0.147:5000/food-menu", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Log the token for verification
+      console.log("Retrieved Token:", token);
 
-      const items = response.data || [];
+      // Fetch food items by making an authorized request with the token
+      const response = await axios.get(
+        `http://192.168.0.147:5000/food-menu`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const items = response.data.foodItems || [];
       setFoodItems(items);
       setFilteredItems(items);
     } catch (error) {
@@ -59,7 +66,6 @@ const foodInventory = () => {
   useEffect(() => {
     fetchFoodItems();
   }, []);
-
   const handleSearch = (query) => {
     setSearchQuery(query);
     const filtered = foodItems.filter(

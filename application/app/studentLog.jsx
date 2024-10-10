@@ -74,13 +74,16 @@ const studentLog = () => {
         "http://192.168.0.147:5000/login",
         loginData
       );
-      const { token, usertype } = response.data;
+      const { token, usertype, id } = response.data;
 
       // Store token and usertype in AsyncStorage
       await AsyncStorage.setItem("token", token);
       await AsyncStorage.setItem("usertype", usertype);
 
-      Toast.show({ type: "success", text1: "Login successful!" });
+      if (usertype === "student" && id) {
+        await AsyncStorage.setItem("id", id);  // Store id for admin users
+      }
+      Toast.show({ type: "success", text1: "Login Successful" });
 
       // Navigate to correct home screen based on usertype
       if (usertype === "student") {
@@ -155,7 +158,7 @@ const studentLog = () => {
 
           <Text style={styles.forgotPassword}>Forgot Password?</Text>
 
-          <Button title={"Login"} loading={loading} onPress={onSubmit} />
+          <Button title={"Login"} loading={loading} onPress={onSubmit} colors={['#4c669f', '#3b5998', '#192f6a']}/>
         </View>
 
         <View style={styles.footer}>

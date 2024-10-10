@@ -3,17 +3,18 @@ import React from 'react'
 import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
 
-const Input = (props) => {
+const Input = ({secureTextEntry, ...props}) => {
   return (
     <View style={[styles.container, props.containerStyles && props.containerStyles]}>
         {
             props.icon && props.icon
         }
         <TextInput
-        style={{flex: 1}}
+        style={{flex: 1, color: theme.colors.textLight}}
         placeholderTextColor={theme.colors.textLight}
         ref={props.inputRef && props.inputRef}
-        multiline={true}
+        secureTextEntry={secureTextEntry}
+        multiline={secureTextEntry ? false : props.multiline || false}
         {...props} />
     </View>
   )

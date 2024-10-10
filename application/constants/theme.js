@@ -4,10 +4,10 @@ export const theme = {
         primaryDark: '#717888',
         dark: '#3e3e3e',
         darkLight: '#e1e1e1',
-        gray: '#cacaca',
+        gray: '#0f0c29',
         white: '#fff',
         black: '#000',
-        green: '#34eb3d',
+        green: '#4F9D4F',
 
         text: '#494949',
         textLight: '#7c7c7c',

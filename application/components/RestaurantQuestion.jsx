@@ -1,23 +1,23 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
 import { hp, wp } from '../helpers/common';
 import { theme } from '../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const RestaurantLogo = ({ restaurantName, colors }) => {
+const RestaurantQuestion = ({ question, colors }) => {
   return (
     <LinearGradient
-      colors={colors} // Array of gradient colors
+      colors={colors} // Array of colors for the gradient
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={styles.card}
-      start={[0, 0]} // Gradient start position
-      end={[1, 1]}   // Gradient end position
     >
-      <Text style={styles.logoText}>{restaurantName}</Text>
+      <Text style={styles.logoText}>{question}</Text>
     </LinearGradient>
   );
 };
 
-export default RestaurantLogo;
+export default RestaurantQuestion;
 
 const styles = StyleSheet.create({
   card: {
@@ -32,9 +32,10 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginRight: 10,
     marginLeft: 10,
-    width: wp(39),
+    width: wp(85),
     height: hp(15),
     marginTop: 15,
+    marginBottom: 15,
     justifyContent: 'space-between',
   },
   logoText: {

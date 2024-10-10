@@ -1,28 +1,23 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
 import { hp, wp } from '../helpers/common';
 import { theme } from '../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const RestaurantLogo = ({ restaurantName, colors }) => {
-  return (
-    <LinearGradient
-      colors={colors} // Array of gradient colors
-      style={styles.card}
-      start={[0, 0]} // Gradient start position
-      end={[1, 1]}   // Gradient end position
-    >
-      <Text style={styles.logoText}>{restaurantName}</Text>
-    </LinearGradient>
-  );
-};
+const FoodLogo = ({ foodName, colors }) => {
+    return (
+      <LinearGradient colors={colors} style={styles.card}>
+        <Text style={styles.logoText}>{foodName}</Text>
+      </LinearGradient>
+    );
+  };
 
-export default RestaurantLogo;
+export default FoodLogo;
 
 const styles = StyleSheet.create({
   card: {
     borderRadius: 10,
-    padding: 20,
+    padding: 15,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -32,16 +27,16 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginRight: 10,
     marginLeft: 10,
-    width: wp(39),
-    height: hp(15),
+    width: wp(25),
+    height: hp(10),
     marginTop: 15,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   logoText: {
-    fontSize: hp(2.5),
+    fontSize: hp(1.7),
     fontWeight: 'bold',
     color: theme.colors.white,
     marginTop: 25,
-    textAlign: 'center',
+    textAlign: 'center'
   },
 });

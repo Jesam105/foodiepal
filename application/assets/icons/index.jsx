@@ -30,6 +30,12 @@ import Currency from './Currency'
 import ChevronDoubleRight from './ChevronDoubleRight';
 import ViewFinder from './ViewFinder';
 import ArrowRight from './ArrowRight';
+import Tick from './Tick';
+import Cart from './Cart';
+import Setting from './Setting';
+import App from './App';
+import Cancel from './Cancel';
+import HeartSolid from './HeartSolid';
 
 const icons = {
     home: Home,
@@ -60,7 +66,13 @@ const icons = {
     currency:Currency,
     chevronRight:ChevronDoubleRight,
     viewFinder:ViewFinder, 
-    arrowRight: ArrowRight
+    arrowRight: ArrowRight,
+    tick: Tick,
+    cart: Cart,
+    setting: Setting,
+    app: App,
+    cancel: Cancel,
+    heartSolid: HeartSolid
 }
 
 const Icon = ({name, ...props}) => {
