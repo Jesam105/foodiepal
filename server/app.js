@@ -472,6 +472,44 @@ app.get("/cart", async (req, res) => {
   }
 });
 
+// Delete Food Item
+app.delete("/food-menu/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedFoodItem = await Food.findByIdAndDelete(id);
+    if (!deletedFoodItem) {
+      return res.status(404).json({ status: "error", message: "Food item not found" });
+    }
+    res.status(200).json({ status: "ok", message: "Food item deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting food item:", error);
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
+
+// Update Food Item
+app.put("/food-menu/:id", async (req, res) => {
+  const { id } = req.params;
+  const { food, description, price, image } = req.body;
+
+  try {
+    const updatedFoodItem = await Food.findByIdAndUpdate(
+      id,
+      { food, description, price, image },
+      { new: true }
+    );
+
+    if (!updatedFoodItem) {
+      return res.status(404).json({ status: "error", message: "Food item not found" });
+    }
+
+    res.status(200).json({ status: "ok", foodItem: updatedFoodItem });
+  } catch (error) {
+    console.error("Error updating food item:", error);
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);
