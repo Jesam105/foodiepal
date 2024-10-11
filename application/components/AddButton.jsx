@@ -4,6 +4,7 @@ import Icon from "../assets/icons"; // Assuming you're importing your icon from 
 import { theme } from "../constants/theme";
 import { hp } from '../helpers/common';
 import Loading from './Loading';
+import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient
 
 const AddButton = ({
   buttonStyle,
@@ -33,17 +34,21 @@ const AddButton = ({
   }
 
   return (
-    <Pressable
-      style={[styles.button, buttonStyle, hasShadow && shadowStyle, { backgroundColor: iconBackground }]}
-      onPress={onPress}
+    <LinearGradient
+      colors={["#4c669f", "#3b5998", "#192f6a"]} // The gradient colors
+      start={{ x: 0, y: 0 }} // Gradient start point
+      end={{ x: 1, y: 1 }}   // Gradient end point
+      style={[styles.button, buttonStyle, hasShadow && shadowStyle]} // Apply gradient to button styles
     >
-      <View style={styles.content}>
-        {iconName && (
-          <Icon name={iconName} style={[styles.icon, iconStyle]} />
-        )}
-        <Text style={[styles.text, textStyle]}>{title}</Text>
-      </View>
-    </Pressable>
+      <Pressable onPress={onPress}>
+        <View style={styles.content}>
+          {iconName && (
+            <Icon name={iconName} style={[styles.icon, iconStyle]} />
+          )}
+          <Text style={[styles.text, textStyle]}>{title}</Text>
+        </View>
+      </Pressable>
+    </LinearGradient>
   );
 };
 
@@ -51,7 +56,6 @@ export default AddButton;
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: theme.colors.primary,
     height: hp(20),
     justifyContent: 'center',
     alignItems: 'center',

@@ -23,6 +23,7 @@ import { Picker } from "@react-native-picker/picker";
 import Footer from "../components/Footer";
 import Toast from "react-native-toast-message";
 import axios from "axios";
+import ToastMessage from "../components/ToastMessage";
 
 const adminReg = () => {
   const router = useRouter();
@@ -34,6 +35,7 @@ const adminReg = () => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const [usertype, setUserType] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const onSubmit = async () => {
     setLoading(true);
@@ -130,19 +132,25 @@ const adminReg = () => {
     <ScreenWrapper bg="black">
       <StatusBar style="light" />
       <View style={styles.container}>
-        <BackButton router={router} onPress={() => router.back()} />
+        <View style={styles.header}>
+          <BackButton router={router} onPress={() => router.back()} />
+          <Text style={styles.welcomeText}>
+            Create An Account
+          </Text>
+        </View>
         <ScrollView
           showsVerticalScrollIndicator={false} // Hides the vertical scrollbar
           showsHorizontalScrollIndicator={false}
         >
-          <View>
-            <Text style={styles.welcomeText}>
-              Create an account for your business
-            </Text>
-          </View>
           <View style={styles.form}>
-            <Text style={{ fontSize: hp(1.5), color: theme.colors.primary, paddingTop: 20 }}>
-              Please fill in the details to register yout business
+            <Text
+              style={{
+                fontSize: hp(1.5),
+                color: theme.colors.textLight,
+                paddingTop: 20,
+              }}
+            >
+              Please fill in the details to register your business
             </Text>
             <Input
               icon={<Icon name="home" size={26} strokeWidth={1.6} />}
@@ -165,12 +173,25 @@ const adminReg = () => {
               placeholder="Enter your email"
               onChangeText={(value) => (emailRef.current = value)}
             />
-            <Input
-              icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
-              placeholder="Password"
-              onChangeText={(value) => (passwordRef.current = value)}
-              secureTextEntry
-            />
+            <View>
+              <Input
+                icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
+                placeholder="Password"
+                onChangeText={(value) => (passwordRef.current = value)}
+                secureTextEntry
+              />
+              <Pressable
+                style={styles.eyeIcon}
+                onPress={() => setPasswordVisible(!passwordVisible)}
+              >
+                <Icon
+                  name={passwordVisible ? "eyeOpen" : "eyeClose"} // Use your custom icon names here
+                  size={26}
+                  strokeWidth={1.6}
+                />
+              </Pressable>
+            </View>
+
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={usertype}
@@ -205,7 +226,7 @@ const adminReg = () => {
           </View>
           {/* <Footer /> */}
         </ScrollView>
-        <Toast swipeable={true} />
+        <ToastMessage swipeable={true} />
       </View>
     </ScreenWrapper>
   );
@@ -216,16 +237,21 @@ export default adminReg;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 45,
+    gap: 30,
     paddingHorizontal: wp(5),
   },
   welcomeText: {
-    fontSize: hp(4),
-    fontWeight: theme.colors.bold,
+    fontSize: hp(3),
+    fontWeight: theme.fonts.medium,
     color: theme.colors.white,
   },
   form: {
     gap: 25,
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
+    top: 16,
   },
   footer: {
     flexDirection: "row",
@@ -236,7 +262,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     textAlign: "center",
-    color: theme.colors.text,
+    color: theme.colors.textLight,
     fontSize: hp(1.6),
   },
   pickerContainer: {
@@ -250,6 +276,12 @@ const styles = StyleSheet.create({
     width: "100%",
     height: hp(7),
     backgroundColor: theme.colors.black,
-    color: theme.colors.text,
+    color: theme.colors.textLight,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingRight: 80,
   },
 });

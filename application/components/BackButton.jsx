@@ -6,7 +6,7 @@ import { theme } from '../constants/theme'
 const BackButton = ({size=26, router, onPress}) => {
   return (
     <Pressable onPress={onPress ? onPress : () => router.back()} style={styles.button}>
-        <Icon name="arrowLeft" strokeWidth={2.5} size={size} color={theme.colors.text} />
+        <Icon name="arrowLeft" strokeWidth={2.5} size={size} color={theme.colors.white} />
     </Pressable>
   )
 }
@@ -18,6 +18,6 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         padding: 5,
         borderRadius: theme.radius.sm,
-        backgroundColor: 'rgba(0, 0, 0, 0.07)'
+        backgroundColor: theme.colors.primary
     }
 })

@@ -23,6 +23,7 @@ import axios from "axios";
 import Generate from "../components/Generate";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
+import ToastMessage from "../components/ToastMessage";
 
 // Mapping of food names to images
 const foodImagesMap = {
@@ -63,7 +64,7 @@ const foodImagesMap = {
 const foodDescriptionsMap = {
   jollof:
     "Jollof rice is a one-pot dish made with tomatoes, onions, and peppers, known for its rich and savory flavor.",
-  fried:
+  friedrice:
     "Fried rice is a versatile dish made with rice stir-fried with vegetables, soy sauce, and various proteins like chicken, shrimp, or eggs. It offers a blend of savory flavors and is often enjoyed as a standalone meal or a side dish.",
   amala:
     "Amala is a soft, dark Nigerian swallow made from yam flour, plantain flour, or cassava flour. It has a distinct flavor and is often paired with rich, spicy soups such as ewedu, gbegiri, or okra soup.",
@@ -127,13 +128,9 @@ const addFoodMenu = () => {
 
   const Add = async () => {
     setLoading(true);
-    if (
-      !foodName ||
-      !description ||
-      !priceRef.current ||
-      !image ||
-      !statusRef.current
-    ) {
+    
+    // Check if all fields are filled
+    if (!foodName || !description || !priceRef.current || !image || !statusRef.current) {
       setLoading(false);
       Toast.show({
         type: "error",
@@ -141,9 +138,10 @@ const addFoodMenu = () => {
       });
       return;
     }
+  
     const id = await AsyncStorage.getItem("id");
     const token = await AsyncStorage.getItem("token");
-
+  
     if (!id) {
       setLoading(false);
       Toast.show({
@@ -152,7 +150,7 @@ const addFoodMenu = () => {
       });
       return;
     }
-
+  
     const foodMenuData = {
       restaurant: id,
       food: foodName,
@@ -161,14 +159,15 @@ const addFoodMenu = () => {
       image, // Use the selected image
       status: statusRef.current,
     };
-
+  
     try {
       const res = await axios.post(
         "http://192.168.0.147:5000/food-menu",
         foodMenuData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
+      // Check for success response
       if (res.data.status === "ok") {
         Toast.show({
           type: "success",
@@ -191,12 +190,22 @@ const addFoodMenu = () => {
       }
     } catch (e) {
       setLoading(false);
-      Toast.show({
-        type: "error",
-        text1: "An error occurred",
-      });
+      // Check for duplicate food item error (409 Conflict)
+      if (e.response && e.response.status === 409) {
+        Toast.show({
+          type: "error",
+          text1: "Food item already exists",
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "An error occurred",
+        });
+      }
     }
   };
+  
+  
 
   return (
     <ScreenWrapper bg="black">
@@ -255,7 +264,7 @@ const addFoodMenu = () => {
             <Text style={styles.label}>Food Price</Text>
             <Input
               icon={<Icon name="currency" size={26} strokeWidth={1.6} />}
-              placeholder="Price of Food"
+              placeholder="Minimum Food Price"
               value={price}
               onChangeText={(value) => {
                 const numericValue = value.replace(/[^0-9.]/g, ""); // Only allow numbers and decimal
@@ -298,7 +307,7 @@ const addFoodMenu = () => {
           </View>
           <Footer />
         </ScrollView>
-        <Toast swipeable={true} />
+        <ToastMessage swipeable={true} />
       </View>
     </ScreenWrapper>
   );

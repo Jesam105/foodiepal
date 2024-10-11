@@ -171,7 +171,7 @@ const studentHome = () => {
             </Pressable>
           </View>
           <RestaurantQuestion
-            question="Where will you like to eat today?"
+            question="Where would you like to eat today?"
             colors={["#4c669f", "#3b5998", "#192f6a"]} // Gradient colors
           />
 
@@ -243,7 +243,7 @@ const studentHome = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalText}>What would you like to do?</Text>
-            <View style={styles.modalButtons}>
+            <View style={styles.rowContainer}>
               {/* Cart Button */}
               <Pressable
                 style={[styles.button, styles.buttonCart]}
@@ -265,23 +265,45 @@ const studentHome = () => {
                 <Text style={styles.buttonText}>Logout</Text>
               </Pressable>
 
-              {/* Logout Button */}
-              <Pressable
-                style={[styles.button, styles.buttonFavourites]}
-                // onPress={handleLogout}
-              >
+              {/* Favourites Button */}
+              <Pressable style={[styles.button, styles.buttonFavourites]}>
                 <Icon name="heart" size={20} strokeWidth={1.6} color="#fff" />
                 <Text style={styles.buttonText}>Favourites</Text>
               </Pressable>
             </View>
-            {/* Cancel Button */}
-            <Pressable
-              style={[styles.button, styles.buttonCancel]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Icon name="cancel" size={20} strokeWidth={1.6} color="#fff" />
-              <Text style={styles.buttonText}>Cancel</Text>
-            </Pressable>
+
+            {/* Buttons in the same row */}
+            <View style={styles.rowContainer}>
+              {/* Wallet Button */}
+              <Pressable style={[styles.button, styles.buttonWallet]}>
+                <Icon name="wallet" size={20} strokeWidth={1.6} color="#fff" />
+                <Text style={styles.buttonText}>Wallet</Text>
+              </Pressable>
+
+              {/* Rewview Button */}
+              <Pressable style={[styles.button, styles.buttonReview]}>
+                <Icon name="review" size={20} strokeWidth={1.6} color="#fff" />
+                <Text style={styles.buttonText}>Review</Text>
+              </Pressable>
+
+              {/* Cancel Button */}
+              <Pressable
+                style={[styles.button, styles.buttonCancel]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Icon name="cancel" size={20} strokeWidth={1.6} color="#fff" />
+                <Text style={styles.buttonText}>Cancel</Text>
+              </Pressable>
+            </View>
+            <View style={styles.rowContainer}>
+              {/* Cancel Button */}
+              <Pressable
+                style={[styles.button, styles.buttonBell]}
+              >
+                <Icon name="notification" size={20} strokeWidth={1.6} color="#fff" />
+                <Text style={styles.buttonText}>Notifications</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       </Modal>
@@ -341,7 +363,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   buttonCancel: {
-    backgroundColor: theme.colors.roseLight,
+    backgroundColor: "#f7b733",
     borderWidth: 0.4,
     width: "30%",
     alignItems: "center",
@@ -362,7 +384,7 @@ const styles = StyleSheet.create({
     fontSize: hp(2),
     width: "94%",
     alignSelf: "center",
-    color: theme.colors.gray,
+    color: theme.colors.white,
   },
 
   item: {
@@ -413,6 +435,21 @@ const styles = StyleSheet.create({
     width: "30%",
     alignItems: "center",
   },
+  buttonWallet: {
+    backgroundColor: "#302b63", // Red for logout
+    width: "30%",
+    alignItems: "center",
+  },
+  buttonReview: {
+    backgroundColor: "#00b09b", // Red for logout
+    width: "30%",
+    alignItems: "center",
+  },
+  buttonBell: {
+    backgroundColor: "#0575E6", // Red for logout
+    width: "100%",
+    alignItems: "center",
+  },
   restaurantCard: {
     position: "relative", // Allows positioning the heart icon relative to the card
   },
@@ -423,6 +460,18 @@ const styles = StyleSheet.create({
     padding: 5, // Optional padding for a better look
     backgroundColor: "transparent", // Default background
     borderRadius: 15, // For a rounded look
+  },
+  rowContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between", // Align buttons in a row
+    marginTop: 15, // Space between button groups
+  },
+
+  button: {
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(5),
+    borderRadius: 5,
+    width: "45%", // Adjust width to fit both buttons in a row
   },
   // heartIconLiked: {
   //   backgroundColor: "#ff5e5b", // Change to red when liked

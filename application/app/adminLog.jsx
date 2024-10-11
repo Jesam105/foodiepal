@@ -23,6 +23,8 @@ import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEff
 import axios from "axios";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ToastMessage from "../components/ToastMessage";
+import ForgotPassword from "../components/ForgotPassword";
 
 const adminLog = () => {
   const router = useRouter();
@@ -57,7 +59,7 @@ const adminLog = () => {
 
   const onSubmit = async () => {
     setLoading(true);
-    
+
     if (!emailRef.current || !passwordRef.current) {
       setLoading(false);
       Toast.show({
@@ -66,30 +68,30 @@ const adminLog = () => {
       });
       return;
     }
-    
+
     const loginData = {
       email: emailRef.current,
       password: passwordRef.current,
     };
-  
+
     try {
       const response = await axios.post(
         "http://192.168.0.147:5000/login",
         loginData
       );
-      
-      const { token, usertype, id } = response.data;  // Extract id from response
-  
+
+      const { token, usertype, id } = response.data; // Extract id from response
+
       // Store token, usertype, and id (only if user is admin) in AsyncStorage
       await AsyncStorage.setItem("token", token);
       await AsyncStorage.setItem("usertype", usertype);
-  
+
       if (usertype === "admin" && id) {
-        await AsyncStorage.setItem("id", id);  // Store id for admin users
+        await AsyncStorage.setItem("id", id); // Store id for admin users
       }
-  
+
       Toast.show({ type: "success", text1: "Login Successful" });
-  
+
       // Navigate to the correct home screen based on usertype
       if (usertype === "student") {
         setTimeout(() => {
@@ -109,35 +111,34 @@ const adminLog = () => {
       console.error(error);
     }
   };
-  
+
   return (
     <ScreenWrapper bg="black">
       <StatusBar style="light" />
       <View style={styles.container}>
-        <BackButton
-          router={router}
-          onPress={() => {
-            Alert.alert("Hold on!", "Are you sure you want to exit?", [
-              {
-                text: "Cancel",
-                onPress: () => null,
-                style: "cancel",
-              },
-              { text: "YES", onPress: () => BackHandler.exitApp() },
-            ]);
-          }}
-        />
+        <View style={styles.header}>
+          <BackButton
+            router={router}
+            onPress={() => {
+              Alert.alert("Hold on!", "Are you sure you want to exit?", [
+                {
+                  text: "Cancel",
+                  onPress: () => null,
+                  style: "cancel",
+                },
+                { text: "YES", onPress: () => BackHandler.exitApp() },
+              ]);
+            }}
+          />
+          <Text style={styles.welcomeText}>Sign In To Continue</Text>
+        </View>
+
         <ScrollView
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
         >
-          <View>
-            <Text style={styles.welcomeText}>Hey,</Text>
-            <Text style={styles.welcomeText}>Welcome Back</Text>
-          </View>
-
           <View style={styles.form}>
-            <Text style={{ fontSize: hp(1.5), color: theme.colors.primary }}>
+            <Text style={{ fontSize: hp(1.5), color: theme.colors.textLight }}>
               Please login to continue
             </Text>
             <Input
@@ -163,10 +164,8 @@ const adminLog = () => {
                 />
               </Pressable>
             </View>
-
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-
             <Button title={"Login"} loading={loading} onPress={onSubmit} />
+            <ForgotPassword title={"Forgot Password?"} />
           </View>
 
           <View style={styles.footer}>
@@ -186,7 +185,7 @@ const adminLog = () => {
             </Pressable>
           </View>
         </ScrollView>
-        <Toast swipeable={true} />
+        <ToastMessage swipeable={true} />
       </View>
     </ScreenWrapper>
   );
@@ -197,12 +196,13 @@ export default adminLog;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 45,
+    gap: 30,
     paddingHorizontal: wp(5),
   },
   welcomeText: {
-    fontSize: hp(4),
-    fontWeight: theme.colors.bold,
+    fontSize: hp(3),
+    fontWeight: theme.fonts.medium,
+    marginBottom: 10,
     color: theme.colors.white,
   },
   form: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   forgotPassword: {
     textALign: "right",
     fontWeight: theme.fonts.semibold,
-    color: theme.colors.text,
+    color: theme.colors.text,   
   },
   footer: {
     flexDirection: "row",
@@ -221,12 +221,18 @@ const styles = StyleSheet.create({
   },
   footerText: {
     textAlign: "center",
-    color: theme.colors.text,
+    color: theme.colors.textLight,
     fontSize: hp(1.6),
   },
   eyeIcon: {
     position: "absolute",
     right: 10,
     top: 16,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingRight: 80,
   },
 });

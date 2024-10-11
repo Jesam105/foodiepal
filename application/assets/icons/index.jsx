@@ -36,6 +36,10 @@ import Setting from './Setting';
 import App from './App';
 import Cancel from './Cancel';
 import HeartSolid from './HeartSolid';
+import Wallet from './Wallet';
+import Review from './Review';
+import Notification from './Notification';
+import Error from './Error';
 
 const icons = {
     home: Home,
@@ -72,7 +76,11 @@ const icons = {
     setting: Setting,
     app: App,
     cancel: Cancel,
-    heartSolid: HeartSolid
+    heartSolid: HeartSolid,
+    wallet: Wallet,
+    review: Review,
+    notification: Notification,
+    error: Error
 }
 
 const Icon = ({name, ...props}) => {
@@ -82,7 +90,7 @@ const Icon = ({name, ...props}) => {
         height={props.size || 24}
         width={props.size || 24}
         strokeWidth={props.strokeWidth || 1.9}
-        color={theme.colors.textLight}
+        color={theme.colors.primary}
         {...props}
     />
   )

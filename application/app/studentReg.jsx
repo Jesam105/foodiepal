@@ -25,6 +25,7 @@ import Toast from "react-native-toast-message";
 import axios from "axios";
 //import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
+import ToastMessage from "../components/ToastMessage";
 
 const studentReg = () => {
   const router = useRouter();
@@ -34,6 +35,7 @@ const studentReg = () => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const [usertype, setUserType] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const onSubmit = async () => {
     setLoading(true);
@@ -124,19 +126,19 @@ const studentReg = () => {
   };
 
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <View style={styles.container}>
-        <BackButton router={router} />
-        <View>
-          <Text style={styles.welcomeText}>Create your Account</Text>
+        <View style={styles.header}>
+          <BackButton router={router} onPress={() => router.back()} />
+          <Text style={styles.welcomeText}>Create An Account</Text>
         </View>
         <ScrollView
           showsVerticalScrollIndicator={false} // Hides the vertical scrollbar
           showsHorizontalScrollIndicator={false}
         >
           <View style={styles.form}>
-            <Text style={{ fontSize: hp(1.5), color: theme.colors.text }}>
+            <Text style={{ fontSize: hp(1.5), color: theme.colors.textLight }}>
               Please fill in the details to create your account
             </Text>
             <Input
@@ -149,12 +151,25 @@ const studentReg = () => {
               placeholder="Email Address"
               onChangeText={(value) => (emailRef.current = value)}
             />
-            <Input
-              icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
-              placeholder="Password"
-              onChangeText={(value) => (passwordRef.current = value)}
-              secureTextEntry
-            />
+            <View>
+              <Input
+                icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
+                placeholder="Password"
+                onChangeText={(value) => (passwordRef.current = value)}
+                secureTextEntry={!passwordVisible}
+              />
+              <Pressable
+                style={styles.eyeIcon}
+                onPress={() => setPasswordVisible(!passwordVisible)}
+              >
+                <Icon
+                  name={passwordVisible ? "eyeOpen" : "eyeClose"} // Use your custom icon names here
+                  size={26}
+                  strokeWidth={1.6}
+                />
+              </Pressable>
+            </View>
+
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={usertype}
@@ -190,7 +205,7 @@ const studentReg = () => {
           </View>
           {/* <Footer /> */}
         </ScrollView>
-        <Toast swipeable={true} />
+        <ToastMessage swipeable={true} />
       </View>
     </ScreenWrapper>
   );
@@ -201,16 +216,22 @@ export default studentReg;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 45,
+    gap: 30,
     paddingHorizontal: wp(5),
   },
   welcomeText: {
-    fontSize: hp(4),
-    fontWeight: theme.colors.bold,
-    color: theme.colors.text,
+    fontSize: hp(3),
+    fontWeight: theme.fonts.medium,
+    marginBottom: 10,
+    color: theme.colors.white,
   },
   form: {
     gap: 25,
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
+    top: 16,
   },
   bottomTextContainer: {
     flexDirection: "row",
@@ -220,7 +241,7 @@ const styles = StyleSheet.create({
   loginText: {
     fontSize: hp(1.6),
     textAlign: "center",
-    color: theme.colors.text,
+    color: theme.colors.textLight,
   },
   pickerContainer: {
     borderWidth: 1,
@@ -232,7 +253,13 @@ const styles = StyleSheet.create({
   picker: {
     width: "100%",
     height: hp(7),
-    backgroundColor: theme.colors.white,
-    color: theme.colors.text,
+    backgroundColor: theme.colors.black,
+    color: theme.colors.textLight,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingRight: 80,
   },
 });

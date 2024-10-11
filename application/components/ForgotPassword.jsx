@@ -5,7 +5,7 @@ import { hp, wp } from '../helpers/common';
 import Loading from './Loading';
 import Icon from "../assets/icons"; // Assuming you're importing your icon from this path
 
-const Button1 = ({
+const ForgotPassword = ({
   buttonStyle,
   textStyle,
   title = '',
@@ -25,7 +25,7 @@ const Button1 = ({
 
   if (loading) {
     return (
-      <View style={[styles.button, buttonStyle, { backgroundColor: 'white' }]}>
+      <View style={[styles.button, buttonStyle, { backgroundColor: 'black' }]}>
         <Loading />
       </View>
     );
@@ -45,7 +45,7 @@ const Button1 = ({
   );
 };
 
-export default Button1;
+export default ForgotPassword;
 
 const styles = StyleSheet.create({
   button: {
@@ -57,9 +57,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.xs,
     borderWidth: 1,
     borderColor: theme.colors.textLight,
-    marginTop: 50,
-    width: '90%',
-    marginLeft: 20
+    width: '100%',
+    marginBottom: 20
   },
   content: {
     flexDirection: 'row',

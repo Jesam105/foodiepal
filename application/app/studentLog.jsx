@@ -23,6 +23,8 @@ import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEff
 import axios from "axios";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ToastMessage from "../components/ToastMessage";
+import ForgotPassword from "../components/ForgotPassword";
 
 const studentLog = () => {
   const router = useRouter();
@@ -81,9 +83,12 @@ const studentLog = () => {
       await AsyncStorage.setItem("usertype", usertype);
 
       if (usertype === "student" && id) {
-        await AsyncStorage.setItem("id", id);  // Store id for admin users
+        await AsyncStorage.setItem("id", id); // Store id for admin users
       }
-      Toast.show({ type: "success", text1: "Login Successful" });
+      Toast.show({
+        text1: "Logged In Successful",
+        type: "success",
+      });
 
       // Navigate to correct home screen based on usertype
       if (usertype === "student") {
@@ -106,30 +111,27 @@ const studentLog = () => {
   };
 
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <View style={styles.container}>
-        <BackButton
-          router={router}
-          onPress={() => {
-            Alert.alert("Hold on!", "Are you sure you want to exit?", [
-              {
-                text: "Cancel",
-                onPress: () => null,
-                style: "cancel",
-              },
-              { text: "YES", onPress: () => BackHandler.exitApp() },
-            ]);
-          }}
-        />
-
-        <View>
-          <Text style={styles.welcomeText}>Hey,</Text>
-          <Text style={styles.welcomeText}>Welcome Back</Text>
+        <View style={styles.header}>
+          <BackButton
+            router={router}
+            onPress={() => {
+              Alert.alert("Hold on!", "Are you sure you want to exit?", [
+                {
+                  text: "Cancel",
+                  onPress: () => null,
+                  style: "cancel",
+                },
+                { text: "YES", onPress: () => BackHandler.exitApp() },
+              ]);
+            }}
+          />
+          <Text style={styles.welcomeText}>Sign In To Continue</Text>
         </View>
-
         <View style={styles.form}>
-          <Text style={{ fontSize: hp(1.5), color: theme.colors.text }}>
+          <Text style={{ fontSize: hp(1.5), color: theme.colors.textLight }}>
             Please login to continue
           </Text>
           <Input
@@ -155,10 +157,13 @@ const studentLog = () => {
               />
             </Pressable>
           </View>
-
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-
-          <Button title={"Login"} loading={loading} onPress={onSubmit} colors={['#4c669f', '#3b5998', '#192f6a']}/>
+            <Button
+              title={"Login"}
+              loading={loading}
+              onPress={onSubmit}
+              colors={["#4c669f", "#3b5998", "#192f6a"]}
+            />
+            <ForgotPassword title={"Forgot Password?"} />
         </View>
 
         <View style={styles.footer}>
@@ -177,7 +182,8 @@ const studentLog = () => {
             </Text>
           </Pressable>
         </View>
-        <Toast swipeable={true} />
+        <ToastMessage />
+        {/* <Toast swipeable={true} /> */}
       </View>
     </ScreenWrapper>
   );
@@ -188,13 +194,14 @@ export default studentLog;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 45,
+    gap: 30,
     paddingHorizontal: wp(5),
   },
   welcomeText: {
-    fontSize: hp(4),
-    fontWeight: theme.colors.bold,
-    color: theme.colors.text,
+    fontSize: hp(3),
+    fontWeight: theme.fonts.medium,
+    marginBottom: 10,
+    color: theme.colors.white,
   },
   form: {
     gap: 25,
@@ -212,12 +219,18 @@ const styles = StyleSheet.create({
   },
   footerText: {
     textAlign: "center",
-    color: theme.colors.text,
+    color: theme.colors.textLight,
     fontSize: hp(1.6),
   },
   eyeIcon: {
     position: "absolute",
     right: 10,
     top: 16,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingRight: 80,
   },
 });

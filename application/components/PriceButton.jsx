@@ -40,7 +40,7 @@ export default PriceButton
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.black,
         height: hp(4),
         justifyContent: 'center',
         flexDirection: 'row',
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: hp(1.5),
-        color: theme.colors.text,
+        color: theme.colors.textLight,
         fontWeight: theme.fonts.medium,
     }
 })

@@ -40,7 +40,7 @@ export default EditButton
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: theme.colors.white,
+        backgroundColor: "rgba(34, 34, 34, 0.8)",
         height: hp(6.6),
         justifyContent: 'center',
         alignItems: 'center',
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: hp(1.9),
-        color: 'black',
+        color: 'white',
         fontWeight: theme.fonts.bold,
     }
 })

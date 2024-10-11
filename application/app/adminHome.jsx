@@ -123,20 +123,17 @@ const adminHome = () => {
               title="Add"
               iconName="plus" // Replace with the actual icon name you want to use
               iconStyle={{ color: "white" }}
-              iconBackground="#6c63ff" // Customize the icon style if needed
               onPress={() => router.push("addFoodMenu")}
             />
             <AddButton
               title="Delete"
               iconName="delete" // Replace with the actual icon name you want to use
               iconStyle={{ color: "white" }}
-              iconBackground="#ff5e5b" // Customize the icon style if needed
             />
             <AddButton
               title="Update"
               iconName="edit" // Replace with the actual icon name you want to use
               iconStyle={{ color: "white" }}
-              iconBackground="#fbb41a" // Customize the icon style if needed
             />
             <Button1
               title={"View Inventory"}

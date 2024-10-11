@@ -22,6 +22,7 @@ import BackButton from "../components/BackButton";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import Icon from "../assets/icons";
+import ToastMessage from "../components/ToastMessage";
 
 const RestaurantFood = () => {
   const router = useRouter();
@@ -90,8 +91,8 @@ const RestaurantFood = () => {
   };
 
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <ScrollView
         contentContainerStyle={styles.scrollViewContainer}
         refreshControl={
@@ -100,15 +101,15 @@ const RestaurantFood = () => {
       >
         <View style={styles.header}>
           <BackButton router={router} onPress={() => router.back()} />
-          <Text style={styles.welcomeText}>View Food Items</Text>
+          <Text style={styles.welcomeText}>Food Items</Text>
           <View style={styles.cartContainer}>
-          <Pressable onPress={() => router.push("viewCart")}>
-            <Icon name="cart" size={26} strokeWidth={1.6} />
-            {cart.length > 0 && (
+            <Pressable onPress={() => router.push("viewCart")}>
+              <Icon name="cart" size={26} strokeWidth={1.6} />
+              {cart.length > 0 && (
                 <View style={styles.cartBadge}>
                   <Text style={styles.cartBadgeText}>{cart.length}</Text>
                 </View>
-            )}
+              )}
             </Pressable>
           </View>
         </View>
@@ -117,6 +118,7 @@ const RestaurantFood = () => {
           <TextInput
             style={styles.searchInput}
             placeholder="Search by food name"
+            placeholderTextColor={theme.colors.textLight}
             value={searchQuery}
             onChangeText={handleSearch}
           />
@@ -133,7 +135,17 @@ const RestaurantFood = () => {
                 <View style={styles.foodDetails}>
                   <View style={styles.foodHeader}>
                     <Text style={styles.foodName}>{item.food}</Text>
-                    <Text style={styles.foodStatus}>{item.status}</Text>
+                    <Text
+                      style={[
+                        styles.foodStatus,
+                        {
+                          color:
+                            item.status === "unavailable" ? theme.colors.rose : theme.colors.green,
+                        },
+                      ]}
+                    >
+                      {item.status}
+                    </Text>
                   </View>
                   <Text
                     style={styles.foodDescription}
@@ -144,7 +156,7 @@ const RestaurantFood = () => {
                     {item.description}
                   </Text>
                   <View style={styles.priceAndIconContainer}>
-                    <Text style={styles.foodPrice}>N {item.price}</Text>
+                    {/* <Text style={styles.foodPrice}>N {item.price}</Text> */}
                     <TouchableOpacity
                       style={styles.addToCartButton}
                       onPress={() => addToCart(item)}
@@ -172,7 +184,7 @@ const RestaurantFood = () => {
           )}
         </View>
       </ScrollView>
-      <Toast swipeable={true} />
+      <ToastMessage swipeable={true} />
     </ScreenWrapper>
   );
 };
@@ -193,7 +205,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingBottom: 15,
     paddingTop: 5,
-    backgroundColor: theme.colors.gray,
+    backgroundColor: "rgba(34, 34, 34, 0.8)", // Adjust the last value for opacity (0.0 to 1.0)
     borderRadius: 8,
   },
   foodDetails: {
@@ -210,11 +222,12 @@ const styles = StyleSheet.create({
   foodName: {
     fontSize: 18,
     fontWeight: "bold",
+    color: theme.colors.white,
   },
   foodPrice: {
     fontSize: 16,
     fontWeight: "bold",
-    color: theme.colors.black,
+    color: theme.colors.textLight,
   },
   foodStatus: {
     fontSize: 18,
@@ -235,6 +248,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     fontSize: hp(2),
     width: "100%",
+    color: theme.colors.gray,
   },
   noItemsContainer: {
     alignItems: "center",
@@ -264,13 +278,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 5,
     paddingRight: 80,
-    gap: 33,
+    gap: 65,
   },
   welcomeText: {
     fontSize: hp(3),
     fontWeight: theme.fonts.medium,
     marginBottom: 10,
     marginRight: 30,
+    color: theme.colors.textLight,
   },
   foodLogo: {
     height: 60,

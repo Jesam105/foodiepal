@@ -20,6 +20,9 @@ import EditButton from "../components/EditButton";
 import ApproveButton from "../components/ApproveButton";
 import { theme } from "../constants/theme";
 import { useRouter } from "expo-router";
+import Toast from "react-native-toast-message";
+import ToastMessage from "../components/ToastMessage";
+import Icon from "../assets/icons";
 
 const foodInventory = () => {
   const router = useRouter();
@@ -46,12 +49,9 @@ const foodInventory = () => {
       console.log("Retrieved Token:", token);
 
       // Fetch food items by making an authorized request with the token
-      const response = await axios.get(
-        `http://192.168.0.147:5000/food-menu`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`http://192.168.0.147:5000/food-menu`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const items = response.data.foodItems || [];
       setFoodItems(items);
@@ -89,9 +89,31 @@ const foodInventory = () => {
     }));
   };
 
+  const handleDelete = async (id) => {
+    const token = await AsyncStorage.getItem("token");
+    try {
+      await axios.delete(`http://192.168.0.147:5000/food-menu/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchFoodItems(); // Refresh the list after deletion
+      // Show success toast message
+      Toast.show({
+        text1: "Food item deleted successfully",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error deleting food item:", error);
+      // Show error toast message
+      Toast.show({
+        text1: "Failed to delete food item",
+        type: "error",
+      });
+    }
+  };
+
   return (
-    <ScreenWrapper bg="white">
-      <StatusBar style="dark" />
+    <ScreenWrapper bg="black">
+      <StatusBar style="light" />
       <View style={styles.container}>
         <View style={styles.header}>
           <BackButton router={router} onPress={() => router.back()} />
@@ -100,6 +122,7 @@ const foodInventory = () => {
         <TextInput
           style={styles.searchInput}
           placeholder="Search by food name or description"
+          placeholderTextColor={theme.colors.textLight}
           value={searchQuery}
           onChangeText={handleSearch}
         />
@@ -115,10 +138,7 @@ const foodInventory = () => {
               <View style={styles.itemContainer}>
                 <View style={styles.rowContainer}>
                   {item.image ? (
-                    <Image
-                      source={{ uri: item.image }}
-                      style={styles.itemImage}
-                    />
+                    <Icon name="image" size={120} strokeWidth={1.6} color="white" />
                   ) : (
                     <Text>No image available</Text>
                   )}
@@ -147,7 +167,10 @@ const foodInventory = () => {
                 </View>
                 <View style={styles.Button}>
                   <EditButton title={"Edit"} />
-                  <ApproveButton title={"Approve"} />
+                  <ApproveButton
+                    title={"Delete"}
+                    onPress={() => handleDelete(item._id)}
+                  />
                 </View>
               </View>
             )}
@@ -166,6 +189,7 @@ const foodInventory = () => {
           </View>
         )}
       </View>
+      <ToastMessage swipeable={true} />
     </ScreenWrapper>
   );
 };
@@ -189,10 +213,12 @@ const styles = StyleSheet.create({
     fontSize: hp(3),
     fontWeight: theme.fonts.medium,
     marginBottom: 10,
+    color: theme.colors.text
   },
   searchInput: {
     height: hp(6),
-    borderColor: "#ccc",
+    borderColor: theme.colors.text,
+    color: theme.colors.textLight,
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
@@ -201,7 +227,9 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     marginBottom: 20,
-    paddingBottom: 10,
+    padding: 10,
+    backgroundColor: "rgba(34, 34, 34, 0.8)",
+    borderRadius: 5
   },
   rowContainer: {
     flexDirection: "row",
@@ -225,12 +253,12 @@ const styles = StyleSheet.create({
   itemTitle: {
     fontSize: hp(2.5),
     fontWeight: theme.fonts.medium,
-    color: "#000",
+    color: theme.colors.white,
   },
   itemPrice: {
     fontSize: hp(1.7),
     fontWeight: theme.fonts.medium,
-    color: "#000",
+    color: theme.colors.textLight,
   },
   itemDescription: {
     fontSize: hp(2),
