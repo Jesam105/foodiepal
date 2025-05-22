@@ -21,7 +21,7 @@ export default RestaurantQuestion;
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 10,
+    borderRadius: 5,
     padding: 20,
     alignItems: 'center',
     justifyContent: 'center',

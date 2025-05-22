@@ -40,6 +40,9 @@ import Wallet from './Wallet';
 import Review from './Review';
 import Notification from './Notification';
 import Error from './Error';
+import Food from './Food';
+import Card from './Card';
+import AdminUser from './AdminUser';
 
 const icons = {
     home: Home,
@@ -80,7 +83,10 @@ const icons = {
     wallet: Wallet,
     review: Review,
     notification: Notification,
-    error: Error
+    error: Error,
+    food: Food,
+    card: Card,
+    adminUser: AdminUser
 }
 
 const Icon = ({name, ...props}) => {

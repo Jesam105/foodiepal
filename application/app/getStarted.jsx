@@ -11,6 +11,7 @@ import Icon from "../assets/icons";
 import Button from "../components/Button";
 import Loading from "../components/Loading";
 import Footer from "../components/Footer";
+import UserCard from "../components/UserCard";
 
 const getStarted = () => {
   const router = useRouter();
@@ -19,18 +20,29 @@ const getStarted = () => {
       <StatusBar style="light" />
       <View style={styles.container}>
         <View>
-          <Text style={styles.welcomeText}>Let's</Text>
-          <Text style={styles.welcomeText}>Get Started</Text>
+          <Text style={styles.welcomeText}>Select User Type</Text>
+          <Text style={{ fontSize: hp(2), color: theme.colors.textLight }}>
+            Please choose the box that suits you
+          </Text>
         </View>
         <View style={styles.button}>
-          <Text style={{ fontSize: hp(1.5), color: theme.colors.primary }}>
-            Please select the button that suits you
-          </Text>
-          <Button title={"Admin"} onPress={() => router.push("adminReg")} />
-          <Button
-            title={"Student"}
-            onPress={() => router.push("studentReg")}
+          <UserCard
+            title="Admin"
+            iconName="adminUser" // Replace with the actual icon name you want to use
+            iconStyle={{ color: "white" }}
+            onPress={() => router.push("adminReg")}
           />
+          <UserCard
+            title="Student"
+            onPress={() => router.push("studentReg")}
+            iconName="user" // Replace with the actual icon name you want to use
+            iconStyle={{ color: "white" }}
+          />
+        </View>
+        <View>
+          {/* <Pressable>
+            <Button title="Next" />
+          </Pressable> */}
         </View>
         <Footer />
       </View>
@@ -48,8 +60,12 @@ const styles = StyleSheet.create({
     marginTop: 80,
   },
   welcomeText: {
-    fontSize: hp(4),
+    fontSize: hp(3),
     fontWeight: theme.colors.bold,
     color: theme.colors.white,
+  },
+  button: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });

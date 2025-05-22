@@ -5,7 +5,7 @@ import {
   Pressable,
   Alert,
   ScrollView,
-  BackHandler, // Import BackHandler
+  BackHandler,
 } from "react-native";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
@@ -76,7 +76,7 @@ const adminLog = () => {
 
     try {
       const response = await axios.post(
-        "http://192.168.0.147:5000/login",
+        "http://192.168.178.185:5000/login",
         loginData
       );
 
@@ -90,7 +90,7 @@ const adminLog = () => {
         await AsyncStorage.setItem("id", id); // Store id for admin users
       }
 
-      Toast.show({ type: "success", text1: "Login Successful" });
+      Toast.show({ type: "success", text1: "Logged In Successfully" });
 
       // Navigate to the correct home screen based on usertype
       if (usertype === "student") {

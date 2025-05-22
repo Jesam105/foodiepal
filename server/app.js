@@ -10,7 +10,7 @@ app.use(express.json());
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log("Database Connected"))
-  .catch((e) => console.log(e));
+  .catch((e) => console.error("Database connection failed:", e));
 
 require("./StudentSchema");
 require("./RestaurantSchema");
@@ -28,8 +28,7 @@ app.get("/", (req, res) => {
 
 // Register restaurant owner API
 app.post("/restaurant", async (req, res) => {
-  const { restaurant, location, secretkey, email, password, usertype } =
-    req.body;
+  const { restaurant, location, secretkey, email, password, usertype } = req.body;
 
   try {
     // Validate the usertype to ensure it's an admin (restaurant owner)
@@ -47,8 +46,8 @@ app.post("/restaurant", async (req, res) => {
         .json({ status: "error", message: "Restaurant already exists" });
     }
 
-    // Validate secret key
-    if (secretkey !== "vuna") {
+    // Validate secret key using the value from .env
+    if (secretkey !== process.env.SECRET_KEY) {
       return res
         .status(400)
         .json({ status: "error", message: "Invalid Secret Key" });
@@ -128,23 +127,11 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    let user, usertype, id;
-
-    // Try finding the user as a Student
-    user = await Student.findOne({ email });
-    if (user) {
-      usertype = "student";
-      id = user._id; // Save the studentId
-    }
-
-    // If not found, try finding the user as a Restaurant Owner
-    if (!user) {
-      user = await Restaurant.findOne({ email });
-      if (user) {
-        usertype = "admin";
-        id = user._id; // Save the restaurantId
-      }
-    }
+    const user =
+      (await Student.findOne({ email })) ||
+      (await Restaurant.findOne({ email }));
+    const usertype = user instanceof Student ? "student" : "admin";
+    const id = user?._id;
 
     // If no user found, send invalid credentials error
     if (!user) {
@@ -182,7 +169,7 @@ app.post("/login", async (req, res) => {
 });
 // Fetch restaurant user data by token
 app.post("/restaurant-data", async (req, res) => {
-  const { token } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
 
   try {
     const user = jwt.verify(token, process.env.JWT_SECRET);
@@ -210,7 +197,7 @@ app.post("/restaurant-data", async (req, res) => {
 });
 // Fetch student user data by token
 app.post("/student-data", async (req, res) => {
-  const { token } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
 
   try {
     console.log("Token received:", token); // Log the token
@@ -242,7 +229,16 @@ app.post("/student-data", async (req, res) => {
 // Add Food Item API
 app.post("/food-menu", async (req, res) => {
   const { food, description, price, image, status } = req.body;
-  const token = req.headers.authorization?.split(" ")[1]; // Use Bearer token format
+
+  // Check if Authorization header exists
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res
+      .status(401)
+      .json({ status: "error", message: "Authorization token missing" });
+  }
+
+  const token = authHeader.split(" ")[1]; // Use Bearer token format
 
   try {
     // Verify the token and get user details
@@ -282,18 +278,23 @@ app.post("/food-menu", async (req, res) => {
       price,
       image,
       status,
-      restaurant: restaurant._id,
+      restaurant: restaurant._id, // Ensure food is linked to the restaurant
     });
 
     await newFood.save();
-    res
-      .status(201)
-      .json({ status: "ok", message: "Food item added successfully" });
+
+    // Return the newly added food item in the response
+    res.status(201).json({
+      status: "ok",
+      message: "Food item added successfully",
+      food: newFood, // Include the newly added food item in the response
+    });
   } catch (error) {
     console.error("Error adding food item:", error);
     res.status(500).json({ status: "error", message: "Server error" });
   }
 });
+
 // Fetch Food Items for the logged-in restaurant
 app.get("/food-menu", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
@@ -346,6 +347,30 @@ app.get("/restaurants", async (req, res) => {
   }
 });
 
+// Fetch student user data by ID
+app.get("/student/:id/cart", async (req, res) => {
+  // Get the student ID from request parameters
+
+  try {
+    const id = req.params.id;
+    console.log("Fetching cart items for student ID:", id);
+
+    // Use the ID to find the cart associated with the student in the database
+    const cart = await Cart.findOne({ studentId: id }); // Assuming you have a `studentId` field in your Cart model
+
+    if (cart) {
+      return res.status(200).json({ success: true, data: cart.items }); // Return the items in the cart
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found for this student." });
+    }
+  } catch (error) {
+    console.error("Error fetching cart items:", error);
+    return res.status(500).json({ success: false, message: "Server error." });
+  }
+});
+
 app.get("/restaurant/:id/menu", async (req, res) => {
   try {
     const { id } = req.params;
@@ -369,106 +394,48 @@ app.get("/restaurant/:id/menu", async (req, res) => {
   }
 });
 
-app.post("/add-to-cart", async (req, res) => {
-  const { food, quantity } = req.body;
-  const token = req.headers.authorization?.split(" ")[1];
+app.post("/cart/add", async (req, res) => {
+  console.log("Received request body:", req.body); // Log the request body
+  const { studentId, foodItem } = req.body; // Use studentId from the request body
 
   try {
-    // Verify the token and get the user details
-    let user;
-    try {
-      user = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      return res
-        .status(401)
-        .json({ status: "error", message: "Invalid or expired token" });
-    }
-
-    // Check if the user is a student
-    if (user.usertype !== "student") {
-      return res
-        .status(403)
-        .json({
-          status: "error",
-          message: "Only students can add to the cart",
-        });
-    }
-
-    // Fetch the student using the token
-    const student = await Student.findById(user.id);
-    if (!student) {
-      return res
-        .status(404)
-        .json({ status: "error", message: "Student not found" });
-    }
-
-    // Check if the food item exists
-    const foodItem = await Food.findById(food);
-    if (!foodItem) {
-      return res
-        .status(404)
-        .json({ status: "error", message: "Food item not found" });
-    }
-
-    // Check if the student already has a cart
-    let cart = await Cart.findOne({ studentId: student._id });
+    // Find the cart by studentId
+    let cart = await Cart.findOne({ studentId });
 
     if (!cart) {
-      // Create a new cart if none exists
-      cart = new Cart({
-        studentId: student._id,
-        items: [{ foodId: foodItem._id, quantity }],
-      });
+      // If no cart exists, create a new one
+      cart = new Cart({ studentId, items: [foodItem] });
     } else {
-      // Check if the food item is already in the cart
-      const itemIndex = cart.items.findIndex(
-        (item) => item.food.toString() === foodItem._id.toString()
-      );
-
-      if (itemIndex > -1) {
-        // Update quantity if the item already exists in the cart
-        cart.items[itemIndex].quantity += quantity;
-      } else {
-        // Add new item to the cart
-        cart.items.push({ food: foodItem._id, quantity });
-      }
+      // If a cart exists, add the new foodItem to the items array
+      cart.items.push(foodItem);
     }
 
-    // Save the cart
+    // Save the updated or new cart
     await cart.save();
-
-    res
-      .status(201)
-      .json({ status: "ok", message: "Item added to cart successfully", cart });
+    res.status(200).json({ message: "Item added to cart", cart });
   } catch (error) {
-    console.error("Error adding to cart:", error);
-    res.status(500).json({ status: "error", message: "Server error" });
+    console.error("Error saving cart:", error); // Log the error for debugging
+    res.status(500).json({ message: "Error adding to cart", error });
   }
 });
 
-app.get("/cart", async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
+// Fetch Cart (GET /cart/:studentId)
+app.get("/cart/:id", async (req, res) => {
+  const { id } = req.params;
 
   try {
-    // Verify the token and get the user details
-    let user;
-    try {
-      user = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      return res.status(401).json({ status: "error", message: "Invalid or expired token" });
+    // Query the cart using the studentId
+    const cart = await Cart.findOne({ studentId: id }).populate("items._id"); // Optional: Populate food details if needed
+
+    if (cart) {
+      res.status(200).json({ cart: cart.items });
+    } else {
+      res.status(404).json({ message: "Cart not found" });
     }
-
-    // Fetch the student's cart
-    const cart = await Cart.findOne({ student: user.id }).populate("items.food");
-
-    if (!cart || cart.items.length === 0) {
-      return res.status(404).json({ status: "ok", message: "Cart is empty" });
-    }
-
-    res.status(200).json({ status: "ok", cart });
+    console.log(cart);
   } catch (error) {
-    console.error("Error fetching cart:", error);
-    res.status(500).json({ status: "error", message: "Server error" });
+    console.error("Error fetching cart:", error); // Log the error for debugging
+    res.status(500).json({ message: "Error fetching cart", error });
   }
 });
 
@@ -479,15 +446,18 @@ app.delete("/food-menu/:id", async (req, res) => {
   try {
     const deletedFoodItem = await Food.findByIdAndDelete(id);
     if (!deletedFoodItem) {
-      return res.status(404).json({ status: "error", message: "Food item not found" });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Food item not found" });
     }
-    res.status(200).json({ status: "ok", message: "Food item deleted successfully" });
+    res
+      .status(200)
+      .json({ status: "ok", message: "Food item deleted successfully" });
   } catch (error) {
     console.error("Error deleting food item:", error);
     res.status(500).json({ status: "error", message: "Server error" });
   }
 });
-
 // Update Food Item
 app.put("/food-menu/:id", async (req, res) => {
   const { id } = req.params;
@@ -501,7 +471,9 @@ app.put("/food-menu/:id", async (req, res) => {
     );
 
     if (!updatedFoodItem) {
-      return res.status(404).json({ status: "error", message: "Food item not found" });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Food item not found" });
     }
 
     res.status(200).json({ status: "ok", foodItem: updatedFoodItem });

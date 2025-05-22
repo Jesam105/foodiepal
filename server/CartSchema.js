@@ -1,25 +1,16 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const CartSchema = new mongoose.Schema({
-  student: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "StudentInfo",
-    required: true,
-  },
+const cartSchema = new mongoose.Schema({
+  studentId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Student' }, // Ensure this is set correctly
   items: [
     {
-      food: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "FoodMenu",
-        required: true,
-      },
-      quantity: {
-        type: Number,
-        required: true,
-        default: 1,
-      },
+      _id: { type: String, required: true },
+      food: { type: String, required: true },
+      description: { type: String },
+      // Include any other fields you need
     },
   ],
 });
 
-mongoose.model("Cart", CartSchema);
+const Cart = mongoose.model('Cart', cartSchema);
+module.exports = Cart;

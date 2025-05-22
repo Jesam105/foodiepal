@@ -65,7 +65,7 @@ const adminReg = () => {
     };
 
     axios
-      .post("http://192.168.0.147:5000/restaurant", restaurantData)
+      .post("http://192.168.178.185:5000/restaurant", restaurantData)
       .then((res) => {
         console.log(res.data);
         if (res.data.status === "ok") {
@@ -178,7 +178,7 @@ const adminReg = () => {
                 icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
                 placeholder="Password"
                 onChangeText={(value) => (passwordRef.current = value)}
-                secureTextEntry
+                secureTextEntry={!passwordVisible}
               />
               <Pressable
                 style={styles.eyeIcon}

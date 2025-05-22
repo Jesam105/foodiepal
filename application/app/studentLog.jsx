@@ -73,7 +73,7 @@ const studentLog = () => {
     };
     try {
       const response = await axios.post(
-        "http://192.168.0.147:5000/login",
+        "http://192.168.178.185:5000/login",
         loginData
       );
       const { token, usertype, id } = response.data;
@@ -86,7 +86,7 @@ const studentLog = () => {
         await AsyncStorage.setItem("id", id); // Store id for admin users
       }
       Toast.show({
-        text1: "Logged In Successful",
+        text1: "Logged In Successfully",
         type: "success",
       });
 

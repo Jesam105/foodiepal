@@ -30,22 +30,15 @@ const RestaurantFood = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredItems, setFilteredItems] = useState([]);
   const [expandedDescription, setExpandedDescription] = useState({});
   const [cart, setCart] = useState([]); // State for cart
-  const colorsArray = [
-    ["#4c669f", "#3b5998", "#192f6a"], // Original blue gradient
-    ["#243B55", "#2C5364", "#3E4A59"], // Dark blue and slate tones
-    ["#1C1C2D", "#4C4C6D", "#282B5B"], // Charcoal blue gradient
-    ["#283048", "#3A539B", "#4B79A1"], // Steel blue to navy
-  ];
 
   const fetchFoodItems = async () => {
     try {
       const id = await AsyncStorage.getItem("id");
       if (id) {
         const response = await axios.get(
-          `http://192.168.0.147:5000/restaurant/${id}/menu`
+          `http://192.168.178.185:5000/restaurant/${id}/menu`
         );
         setFoodItems(response.data.foodItems);
       }
@@ -62,16 +55,27 @@ const RestaurantFood = () => {
     setRefreshing(false);
   };
 
+  // const fetchCart = async () => {
+  //   try {
+  //     const token = await AsyncStorage.getItem("token");
+  //     if (token) {
+  //       const response = await axios.get("http://1192.168.178.185:5000/cart", {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       setCart(response.data.cart);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching cart:", error);
+  //   }
+  // };
+
   useEffect(() => {
     fetchFoodItems();
+    //fetchCart(); // Fetch the cart from the backend
   }, []);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    const filtered = foodItems.filter((item) =>
-      item.food.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredItems(filtered);
   };
 
   const toggleDescription = (id) => {
@@ -81,14 +85,47 @@ const RestaurantFood = () => {
     }));
   };
 
-  const addToCart = (item) => {
-    setCart((prevCart) => [...prevCart, item]);
-    //alert(`${item.food} added to cart!`); // Alert to confirm addition
-    Toast.show({
-      type: "success",
-      text1: `${item.food} added to cart!`,
-    });
+  const addToCart = async (item) => {
+    try {
+      const id = await AsyncStorage.getItem("id");
+
+      if (!id) {
+        console.log("Student ID not found in AsyncStorage");
+        return;
+      }
+
+      if (id) {
+        // Update cart locally (if needed)
+        const updatedCart = [...cart, item];
+        setCart(updatedCart);
+
+        // Sync cart with backend
+        await axios.post("http://92.168.152.245:5000/cart/add", {
+          studentId: id, // Ensure this matches what the backend expects
+          foodItem: {
+            _id: item._id, // The ID of the food item
+            food: item.food, // The name of the food
+            //price: item.price, // The price of the food
+            description: item.description
+          },
+        });
+
+        // Show success message
+        Toast.show({
+          type: "success",
+          text1: `${item.food} added to cart!`,
+        });
+      } else {
+        console.error("No student ID found, unable to add to cart.");
+      }
+    } catch (error) {
+      console.error("Error saving cart:", error);
+    }
   };
+
+  const filteredItems = foodItems.filter((item) =>
+    item.food.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <ScreenWrapper bg="black">
@@ -124,28 +161,25 @@ const RestaurantFood = () => {
           />
           {loading ? (
             <DotIndicator color={theme.colors.primary} />
-          ) : foodItems.length > 0 ? (
-            foodItems.map((item, index) => (
+          ) : filteredItems.length > 0 ? (
+            filteredItems.map((item, index) => (
               <View key={item._id} style={styles.foodItem}>
-                <FoodLogo
-                  style={styles.foodLogo}
-                  foodName={item.food}
-                  colors={colorsArray[index % colorsArray.length]} // Use gradient colors
-                />
+                {item.image ? (
+                  <View style={styles.imageLogo}>
+                    <Icon
+                      name="image"
+                      size={120}
+                      strokeWidth={1.6}
+                      color={theme.colors.white}
+                    />
+                  </View>
+                ) : (
+                  <Text>No image available</Text>
+                )}
+
                 <View style={styles.foodDetails}>
                   <View style={styles.foodHeader}>
                     <Text style={styles.foodName}>{item.food}</Text>
-                    <Text
-                      style={[
-                        styles.foodStatus,
-                        {
-                          color:
-                            item.status === "unavailable" ? theme.colors.rose : theme.colors.green,
-                        },
-                      ]}
-                    >
-                      {item.status}
-                    </Text>
                   </View>
                   <Text
                     style={styles.foodDescription}
@@ -156,10 +190,22 @@ const RestaurantFood = () => {
                     {item.description}
                   </Text>
                   <View style={styles.priceAndIconContainer}>
-                    {/* <Text style={styles.foodPrice}>N {item.price}</Text> */}
+                    <Text
+                      style={[
+                        styles.foodStatus,
+                        {
+                          color:
+                            item.status === "unavailable"
+                              ? theme.colors.rose
+                              : theme.colors.green,
+                        },
+                      ]}
+                    >
+                      {item.status}
+                    </Text>
                     <TouchableOpacity
                       style={styles.addToCartButton}
-                      onPress={() => addToCart(item)}
+                      onPress={() => addToCart(item)} // Call addToCart on press
                     >
                       <Icon
                         name="plus"
@@ -205,14 +251,14 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingBottom: 15,
     paddingTop: 5,
-    backgroundColor: "rgba(34, 34, 34, 0.8)", // Adjust the last value for opacity (0.0 to 1.0)
+    backgroundColor: "rgba(34, 34, 34, 0.8)",
     borderRadius: 8,
   },
   foodDetails: {
     flex: 1,
     marginLeft: 10,
     justifyContent: "center",
-    marginTop: 15,
+    marginTop: 10,
   },
   foodHeader: {
     flexDirection: "row",
@@ -223,11 +269,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: theme.colors.white,
-  },
-  foodPrice: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: theme.colors.textLight,
   },
   foodStatus: {
     fontSize: 18,
@@ -264,70 +305,53 @@ const styles = StyleSheet.create({
     height: hp(70),
     marginTop: 10,
   },
-  viewButton: {
-    alignItems: "flex-start",
-    marginTop: 5,
-  },
-  viewButtonText: {
-    color: theme.colors.primary,
-    fontWeight: "bold",
-  },
   header: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 5,
-    paddingRight: 80,
-    gap: 65,
+    alignItems: "center",
+    marginVertical: hp(1),
   },
   welcomeText: {
-    fontSize: hp(3),
-    fontWeight: theme.fonts.medium,
-    marginBottom: 10,
-    marginRight: 30,
-    color: theme.colors.textLight,
-  },
-  foodLogo: {
-    height: 60,
-    width: 60,
-  },
-  priceAndIconContainer: {
-    flexDirection: "row", // Aligns the price and icon horizontally
-    alignItems: "center", // Vertically centers both the price and the icon
-    justifyContent: "space-between", // Creates space between the price and the icon
-    marginTop: 2, // Adds spacing above the container
-  },
-  addToCartButton: {
-    backgroundColor: theme.colors.primary, // Button background color
-    padding: 10, // Padding around the icon
-    borderRadius: 5, // Circular button
-    alignItems: "center",
-    justifyContent: "center",
-    width: wp(5), // Set a width to match the button size
-    height: wp(5), // Set height to match width for a perfect circle
-  },
-
-  addToCartButtonText: {
-    color: "#fff",
+    color: theme.colors.white,
+    fontSize: 22,
     fontWeight: "bold",
+    marginLeft: 10,
   },
   cartContainer: {
-    position: "relative",
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 5,
   },
   cartBadge: {
     position: "absolute",
-    right: -10, // Adjust the position of the badge
-    top: -5, // Adjust the vertical position
-    backgroundColor: theme.colors.rose, // Badge background color
-    borderRadius: 10, // Fully rounded badge
-    width: 20, // Badge width
-    height: 20, // Badge height
+    right: -5,
+    top: -10,
+    backgroundColor: theme.colors.rose,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
     justifyContent: "center",
     alignItems: "center",
   },
   cartBadgeText: {
-    color: "#fff", // White text
-    fontSize: 12, // Smaller text size
+    color: "#fff",
+    fontSize: 12,
     fontWeight: "bold",
+  },
+  priceAndIconContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  addToCartButton: {
+    backgroundColor: theme.colors.primary,
+    padding: 5,
+    width: "25%",
+    alignItems: "center",
+    borderRadius: 5,
+  },
+  imageLogo: {
+    marginTop: 10,
   },
 });

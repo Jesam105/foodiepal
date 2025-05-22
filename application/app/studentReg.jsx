@@ -63,7 +63,7 @@ const studentReg = () => {
     };
 
     axios
-      .post("http://192.168.0.147:5000/student", studentData)
+      .post("http://192.168.178.185:5000/student", studentData)
       .then((res) => {
         console.log(res.data);
         if (res.data.status === "ok") {

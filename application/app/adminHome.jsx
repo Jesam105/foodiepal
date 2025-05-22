@@ -29,7 +29,7 @@ const adminHome = () => {
   // Fetch user data after login
   const fetchUserData = async () => {
     try {
-      const token = await AsyncStorage.getItem("token");
+      const token = await AsyncStorage.getItem("token"); // Retrieve id
       const id = await AsyncStorage.getItem("id"); // Retrieve id
 
       if (!token || !id) {
@@ -42,7 +42,7 @@ const adminHome = () => {
       console.log("Retrieved Restaurant ID:", id);
 
       const response = await axios.post(
-        "http://192.168.0.147:5000/restaurant-data",
+        "http://192.168.178.185:5000/restaurant-data",
         {
           token,
         }
@@ -120,19 +120,19 @@ const adminHome = () => {
         >
           <View>
             <AddButton
-              title="Add"
+              title="Add Food Items"
               iconName="plus" // Replace with the actual icon name you want to use
               iconStyle={{ color: "white" }}
               onPress={() => router.push("addFoodMenu")}
             />
             <AddButton
-              title="Delete"
-              iconName="delete" // Replace with the actual icon name you want to use
+              title="Manage Orders"
+              iconName="cart" // Replace with the actual icon name you want to use
               iconStyle={{ color: "white" }}
             />
             <AddButton
-              title="Update"
-              iconName="edit" // Replace with the actual icon name you want to use
+              title="Payment History"
+              iconName="card" // Replace with the actual icon name you want to use
               iconStyle={{ color: "white" }}
             />
             <Button1
@@ -213,13 +213,13 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: wp(80),
     padding: wp(5),
-    backgroundColor: "white",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 10,
     elevation: 5,
   },
   modalText: {
     fontSize: hp(2.2),
-    color: theme.colors.text,
+    color: theme.colors.white,
     marginBottom: 20,
   },
   modalButtons: {

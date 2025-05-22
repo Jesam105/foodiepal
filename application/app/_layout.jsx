@@ -1,15 +1,19 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { Stack } from 'expo-router'
+import { NavigationContainer } from '@react-navigation/native';
 
 const _layout = () => {
   return (
-    <Stack 
-    screenOptions={{
-        headerShown: false
-    }}
-    
-    />
+    <NavigationContainer>
+      <Stack
+        screenOptions={{
+          headerShown: false
+        }}
+
+      />
+    </NavigationContainer>
+
   )
 }
 

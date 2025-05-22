@@ -56,7 +56,7 @@ const studentHome = () => {
       console.log("Retrieved Token:", token);
       console.log("Retrieved Student ID:", id);
       const response = await axios.post(
-        "http://192.168.0.147:5000/student-data",
+        "http://192.168.178.185:5000/student-data",
         { token }
       );
 
@@ -78,7 +78,7 @@ const studentHome = () => {
 
   const fetchRestaurants = async () => {
     try {
-      const response = await axios.get("http://192.168.0.147:5000/restaurants");
+      const response = await axios.get("http://192.168.178.185:5000/restaurants");
       setRestaurants(response.data);
       setFilteredItems(response.data);
     } catch (error) {
@@ -275,7 +275,7 @@ const studentHome = () => {
             {/* Buttons in the same row */}
             <View style={styles.rowContainer}>
               {/* Wallet Button */}
-              <Pressable style={[styles.button, styles.buttonWallet]}>
+              <Pressable style={[styles.button, styles.buttonWallet]} >
                 <Icon name="wallet" size={20} strokeWidth={1.6} color="#fff" />
                 <Text style={styles.buttonText}>Wallet</Text>
               </Pressable>
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
-    paddingRight: 20,
+    paddingRight: 10,
   },
   logoutText: {
     fontSize: hp(2.5),
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   searchInput: {
     height: hp(6),
     borderColor: "#ccc",
-    borderWidth: 2,
+    borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 20,

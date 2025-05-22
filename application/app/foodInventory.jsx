@@ -49,7 +49,7 @@ const foodInventory = () => {
       console.log("Retrieved Token:", token);
 
       // Fetch food items by making an authorized request with the token
-      const response = await axios.get(`http://192.168.0.147:5000/food-menu`, {
+      const response = await axios.get(`http://192.168.178.185:5000/food-menu`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -92,7 +92,7 @@ const foodInventory = () => {
   const handleDelete = async (id) => {
     const token = await AsyncStorage.getItem("token");
     try {
-      await axios.delete(`http://192.168.0.147:5000/food-menu/${id}`, {
+      await axios.delete(`http://192.168.178.185:5000/food-menu/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchFoodItems(); // Refresh the list after deletion

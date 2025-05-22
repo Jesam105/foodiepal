@@ -15,4 +15,4 @@ const ScreenWrapper = ({children, bg}) => {
   )
 }
 
-export default ScreenWrapper
+export default ScreenWrapper;

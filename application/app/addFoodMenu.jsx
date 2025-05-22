@@ -86,6 +86,7 @@ const addFoodMenu = () => {
   const priceRef = useRef("");
   const statusRef = useRef("");
   const [id, setid] = useState(null);
+  
 
   useEffect(() => {
     const getid = async () => {
@@ -152,6 +153,7 @@ const addFoodMenu = () => {
     }
   
     const foodMenuData = {
+      
       restaurant: id,
       food: foodName,
       description,
@@ -162,7 +164,7 @@ const addFoodMenu = () => {
   
     try {
       const res = await axios.post(
-        "http://192.168.0.147:5000/food-menu",
+        "http://192.168.178.185:5000/food-menu",
         foodMenuData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -220,7 +222,7 @@ const addFoodMenu = () => {
           <View style={styles.form}>
             <Text style={styles.label}>Food Name</Text>
             <Input
-              icon={<Icon name="home" size={26} strokeWidth={1.6} />}
+              icon={<Icon name="food" size={26} strokeWidth={1.6} />}
               placeholder="Name of Food"
               value={foodName}
               onChangeText={handleFoodNameChange} // Update images when food name changes
